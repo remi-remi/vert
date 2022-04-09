@@ -62,9 +62,9 @@ public class Design extends JFrame {
     public Design() {
         setTitle("formulaire de connection");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 618, 484);
+        setBounds(100, 100, 1364, 485);
         contientTout = new JPanel();
-        contientTout.setBackground(Color.RED);
+        contientTout.setBackground(Color.BLUE);
         contientTout.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contientTout);
         contientTout.setLayout(new CardLayout(0, 0));
@@ -212,37 +212,67 @@ public class Design extends JFrame {
         verif = new JButton("connecter");
         verif.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		loginpanel.setVisible(false);
-
-        		 try {
-                     											debug.setText("Class.forName(\"com.mysql.jdbc.Driver\").newInstance();");
+        		/*loginpanel.setVisible(false);*/
+        		 try {		/*                 \/                           <-  changer options SQL ici  */
+        			 String bddUtilisateur="prof";
+        			 String bddMdp="prof_1234";
+        			 String host="jdbc:mysql://192.168.1.49:3306/vert";    /* ou 8080 */
+                     																				debug.setText("Class.forName(\"com.mysql.jdbc.Driver\").newInstance();");
                      nomU.setText(ulogin.getText());
                      Class.forName("com.mysql.jdbc.Driver").newInstance();
-                     											debug.setText("con=DriverManager.getConnection(\"jdbc:mysql://localhost:8080/condb\",\"root\",\"root\")");
-                     Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/condb","root","root"); /* ou 8080*/
-                     											debug.setText("Statement stmt=con.createStatement();");
+                     																				debug.setText("Statement stmt=con.createStatement();"+"host = "+host+"SQL utilisateur = "+bddUtilisateur+"SQL mdp ="+bddMdp);
+                     Connection con=DriverManager.getConnection(host,bddUtilisateur,bddMdp); 			/* ou 8080*/
+                     																				debug.setText("Statement stmt=con.createStatement();");
                      Statement stmt=con.createStatement();
-                     											debug.setText("\"select * from login where utilisateur='\"+ulogin+\"' and mdp='\"+umdp+\"'\";");
-                     String sql="select * from login where utilisateur='"+ulogin.getText()+"' and mdp='"+umdp.getText()+"'";
+                     																				debug.setText("erreur L228 dans: select * from proprietaire where login='"+ulogin.getText()+"' and mdp='"+umdp.getText()+"");
+                     String sql="select * from proprietaire where login='"+ulogin.getText()+"' and mdp='"+umdp.getText()+"'";
                      ResultSet rs=stmt.executeQuery(sql);
-                     debug.setText("OK!");
+                     															debug.setText("requéte exécutée");
                      if(rs.next()) {
-                     verif.setText("OK!");
+                     verif.setText("OK");
                      }
                      else
-                     verif.setText("erreur : / ");
-                     
+                     verif.setText("introuvable");
                  }catch(Exception e1) {};
                  
         		
         	}
         });
-        verif.setBounds(202, 35, 85, 23);
+        verif.setBounds(202, 35, 348, 23);
         loginpanel.add(verif);
         
         debug = new JLabel("");
-        debug.setBounds(10, 67, 277, 20);
+        debug.setBounds(10, 67, 1318, 70);
         loginpanel.add(debug);
+        
+        JButton btnNewButton_3 = new JButton("test");
+        btnNewButton_3.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+
+        		try {		/*                 \/                           <-  changer options SQL ici  */
+       			 String bddUtilisateur="prof";
+       			 String bddMdp="prof_1234";
+       			 String host="jdbc:mysql://192.168.1.49:3306/vert";    /* ou 8080 */
+                    																				debug.setText("Class.forName(\"com.mysql.jdbc.Driver\").newInstance();");
+                    Class.forName("com.mysql.jdbc.Driver").newInstance();
+                    																				debug.setText("erreur config con sql");
+                    Connection con=DriverManager.getConnection(host,bddUtilisateur,bddMdp); 			/* ou 8080*/
+                    																				debug.setText("erreur L 262 Statement stmt=con.createStatement();");
+                    Statement stmt=con.createStatement();
+                    String sql="insert into proprietaire (Nom,Prenom,Adresse,telephone,login,mdp,email,role) values ('lenom','leprenom','ladresse','letel','lelogin','lemdp','lemail','lerole');";
+                    																				debug.setText("erreur L228 dans: la requéte:  "+sql);
+                    stmt.executeUpdate(sql);
+                    																				debug.setText("requéte exécutée");
+
+                }catch(Exception e1) {};
+                
+       		
+       	}
+        		
+        }
+        );
+        btnNewButton_3.setBounds(7, 167, 89, 23);
+        loginpanel.add(btnNewButton_3);
         
         JPanel panel = new JPanel();
         contientTout.add(panel, "name_6630839708200");
