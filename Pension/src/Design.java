@@ -17,6 +17,11 @@ import java.awt.CardLayout;
 import java.awt.FlowLayout;
 import javax.swing.JTextPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import java.awt.Font;
+import java.awt.Rectangle;
+import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
 
 /*https://www.tutorialsfield.com/how-to-connect-mysql-database-in-java-using-eclipse/*/
 
@@ -25,20 +30,31 @@ public class Design extends JFrame {
     /**
 	 * 
 	 */
+	JPanel CardBox_ = new JPanel();
+	
 	private JPanel contientTout;
-    private JPanel info;
-    private JPanel loginpanel;
+    private JPanel CardInfo_;
+    private JPanel CardLogin_;
+    
     private JTextField ulogin;
     private JPasswordField umdp;
     private JLabel lblNewLabel;
     private JLabel lblNewLabel_1;
     private JButton verif;
-    private JLabel debug;
     private JLabel bonjour;
-    private JLabel nomU;
+    private JLabel infoNomU;
     private JButton ba;
-    private JLabel adminlabel;
+    private JLabel actuelAdmin;
+    private JTextField debug;
+    private JTextField textField;
+    private JLabel infoNomPen;
     private JTable table;
+    private JTable table_1;
+		 String bddUtilisateur="prof";
+		 String bddMdp="prof_1234";
+		 String host="jdbc:mysql://192.168.1.49:3306/vert";    /* ou 8080 */
+		 String sql="call getCon ('remi55','1234');";
+		 private JTextField debug2;
 
     /**
      * Launch the application.
@@ -53,6 +69,8 @@ public class Design extends JFrame {
                     e.printStackTrace();
                 }
             }
+            
+            
         });
     }
 
@@ -60,259 +78,455 @@ public class Design extends JFrame {
      * Create the frame.
      */
     public Design() {
-        setTitle("formulaire de connection");
+        setTitle("gestion pension box et gardiennage");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 1364, 485);
-        contientTout = new JPanel();
+        setBounds(100, 100, 992, 351);
+        
+        contientTout = new JPanel();												/*CONTIENT TOUT*/
         contientTout.setBackground(Color.BLUE);
         contientTout.setBorder(new EmptyBorder(5, 5, 5, 5));
         setContentPane(contientTout);
         contientTout.setLayout(new CardLayout(0, 0));
         
-        info = new JPanel();
-        info.setBackground(Color.WHITE);
-        contientTout.add(info, "name_39649989349900");
-        info.setLayout(null);
+        JPanel __CardSelection__ = new JPanel();
+        __CardSelection__.setVisible(false);
+        contientTout.add(__CardSelection__, "name_273988110161100");
+        __CardSelection__.setLayout(null);
         
-        bonjour = new JLabel("bonjour");
-        bonjour.setBounds(425, 15, 46, 14);
-        info.add(bonjour);
-        
-        nomU = new JLabel("Responsable:");
-        nomU.setBounds(10, 36, 75, 14);
-        info.add(nomU);
-        
-        ba = new JButton("admin?");
-        ba.addActionListener(new ActionListener() {
+        JButton deconnexion = new JButton("d\u00E9connexion");
+        deconnexion.setForeground(Color.BLACK);
+        deconnexion.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        deconnexion.setBackground(new Color(255, 102, 102));
+        deconnexion.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		 try {
-						
-						
-						Class.forName("com.mysql.jdbc.Driver").newInstance();
-						
-						Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/condb","root","root");
-						
-						Statement stmt=con.createStatement();
-						
-						String sql="select admin from login where utilisateur='"+ulogin.getText()+"'";
-						
-						ResultSet rs=stmt.executeQuery(sql);
-						if(rs.next()) {
-							String eee = rs.getString("Place1");
-							adminlabel.setText((eee));
-						}
-						else {};
-
-
-        		 }catch(Exception e1) {};
+        		__CardSelection__.setVisible(false);
+        		CardLogin_.setVisible(true);
+        		ulogin.setText("");
+        		umdp.setText("");
         		
         	}
         });
-        ba.setBounds(481, 11, 101, 23);
-        info.add(ba);
+        deconnexion.setBounds(195, 42, 175, 83);
+        __CardSelection__.add(deconnexion);
         
-        adminlabel = new JLabel("jacki chan");
-        adminlabel.setBounds(142, 36, 517, 14);
-        info.add(adminlabel);
+        JLabel bienvenue = new JLabel("bienvenue (ulogin)");
+        bienvenue.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        bienvenue.setBounds(10, 10, 356, 21);
+        __CardSelection__.add(bienvenue);
         
-        JLabel lblNewLabel_2 = new JLabel("ville:");
-        lblNewLabel_2.setBounds(10, 61, 46, 14);
-        info.add(lblNewLabel_2);
+        JButton btnGP = new JButton("gestion de la pension");							/*BOUTON GESTION PENSION*/
+        btnGP.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		CardInfo_.setVisible(true);
+        		__CardSelection__.setVisible(false);
+        	}
+        });
+        btnGP.setForeground(new Color(0, 0, 0));
+        btnGP.setBackground(new Color(152, 251, 152));
+        btnGP.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        btnGP.setBounds(195, 136, 175, 83);
+        __CardSelection__.add(btnGP);
         
-        JLabel lblNewLabel_3 = new JLabel("paris");
-        lblNewLabel_3.setBounds(142, 61, 46, 14);
-        info.add(lblNewLabel_3);
         
-        JLabel lblNewLabel_4 = new JLabel("adresse:");
-        lblNewLabel_4.setBounds(10, 86, 46, 14);
-        info.add(lblNewLabel_4);
         
-        JLabel lblNewLabel_5 = new JLabel("10 rue de paris");
-        lblNewLabel_5.setBounds(142, 86, 116, 14);
-        info.add(lblNewLabel_5);
+        JButton btnGB = new JButton("gestion des box");									/*BOUTON BOX*/
+        btnGB.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		CardBox_.setVisible(true);
+        		__CardSelection__.setVisible(false);
+        	}
+        });
+        btnGB.setForeground(Color.BLACK);
+        btnGB.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        btnGB.setBackground(new Color(176, 224, 230));
+        btnGB.setBounds(10, 42, 175, 83);
+        __CardSelection__.add(btnGB);
         
-        JLabel lblNewLabel_6 = new JLabel("telephone:");
-        lblNewLabel_6.setBounds(10, 111, 75, 14);
-        info.add(lblNewLabel_6);
-        
-        JLabel lblNewLabel_7 = new JLabel("06 06 06 06 06");
-        lblNewLabel_7.setBounds(142, 111, 116, 14);
-        info.add(lblNewLabel_7);
-        
-        JLabel lblNewLabel_8 = new JLabel("Nom de la pension:");
-        lblNewLabel_8.setBounds(10, 136, 101, 14);
-        info.add(lblNewLabel_8);
-        
-        JLabel lblNewLabel_9 = new JLabel("pensionde la seine");
-        lblNewLabel_9.setBounds(142, 136, 116, 14);
-        info.add(lblNewLabel_9);
-        
-        JLabel lblNewLabel_10 = new JLabel("adresse siege:");
-        lblNewLabel_10.setBounds(10, 161, 101, 14);
-        info.add(lblNewLabel_10);
-        
-        JLabel lblNewLabel_11 = new JLabel("9 rue de paris");
-        lblNewLabel_11.setBounds(142, 161, 116, 14);
-        info.add(lblNewLabel_11);
-        
-        JLabel lblNewLabel_12 = new JLabel("Lien logo:");
-        lblNewLabel_12.setBounds(10, 186, 101, 14);
-        info.add(lblNewLabel_12);
-        
-        JLabel lblNewLabel_13 = new JLabel("vert.com/ressources/logo.png");
-        lblNewLabel_13.setBounds(142, 186, 145, 14);
-        info.add(lblNewLabel_13);
-        
-        JLabel lblNewLabel_14 = new JLabel("prix par vaccin:");
-        lblNewLabel_14.setBounds(10, 211, 101, 14);
-        info.add(lblNewLabel_14);
-        
-        JLabel lblNewLabel_15 = new JLabel("prix par vermifuge:");
-        lblNewLabel_15.setBounds(10, 236, 101, 14);
-        info.add(lblNewLabel_15);
-        
-        JLabel lblNewLabel_16 = new JLabel("6.5");
-        lblNewLabel_16.setBounds(142, 211, 46, 14);
-        info.add(lblNewLabel_16);
-        
-        JLabel lblNewLabel_17 = new JLabel("5.6");
-        lblNewLabel_17.setBounds(142, 236, 46, 14);
-        info.add(lblNewLabel_17);
-        
-        JButton btnNewButton = new JButton("editer les informations");
-        btnNewButton.setBounds(36, 261, 178, 23);
-        info.add(btnNewButton);
-        info.setVisible(false);
-        
-        loginpanel = new JPanel();
-        loginpanel.setBackground(Color.LIGHT_GRAY);
-        loginpanel.setLayout(null);
-        contientTout.add(loginpanel, "name_39649998733200");
-        loginpanel.setVisible(true);
+        JButton btnGG = new JButton("gestion gardiennage");							
+        btnGG.setActionCommand("gestion gardiennage");/*BOUTON GARDIENNAGE*/
+        btnGG.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		
+        		
+        		
+        		
+        	}
+        });
+        btnGG.setForeground(Color.BLACK);
+        btnGG.setFont(new Font("Tahoma", Font.PLAIN, 15));
+        btnGG.setBackground(Color.ORANGE);
+        btnGG.setBounds(10, 136, 175, 83);
+        __CardSelection__.add(btnGG);
+    
+    
+        CardLogin_ = new JPanel();
+        CardLogin_.setBackground(Color.WHITE);
+        CardLogin_.setLayout(null);
+        contientTout.add(CardLogin_, "name_39649998733200");
+        CardLogin_.setVisible(true);
         
         ulogin = new JTextField();
         ulogin.setColumns(10);
         ulogin.setBackground(Color.WHITE);
         ulogin.setBounds(10, 36, 86, 20);
-        loginpanel.add(ulogin);
+        CardLogin_.add(ulogin);
         
         umdp = new JPasswordField();
         umdp.setBackground(Color.WHITE);
         umdp.setBounds(106, 36, 86, 20);
-        loginpanel.add(umdp);
+        CardLogin_.add(umdp);
         
         lblNewLabel = new JLabel("login");
         lblNewLabel.setBounds(10, 11, 46, 14);
-        loginpanel.add(lblNewLabel);
+        CardLogin_.add(lblNewLabel);
         
         lblNewLabel_1 = new JLabel("mot de passe");
         lblNewLabel_1.setBounds(106, 11, 96, 14);
-        loginpanel.add(lblNewLabel_1);
+        CardLogin_.add(lblNewLabel_1);
+        
+        JLabel logintxt = new JLabel("placeholder-----------------------------------------------------------------------------------------------------------------------------------");
+        logintxt.setBackground(Color.BLACK);
+        logintxt.setForeground(Color.RED);
+        logintxt.setBounds(10, 67, 301, 42);
+        CardLogin_.add(logintxt);
         
         verif = new JButton("connecter");
         verif.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		/*loginpanel.setVisible(false);*/
+        		
+        		/* AUTO CON !!! -------------------------------------------------------------------------------------------------------------------------------------------!!!!!!!!!!!!!-
+        		
+        		ulogin.setText("remi3");
+        		umdp.setText("1234");
+        		System.out.println("|AUTO CON ACTIF !!!|");
+
+        	    AUTO CON !!! -------------------------------------------------------------------------------------------------------------------------------------------!!!!!!!!!!!!!-*/
+        		
+        		
+        		
         		 try {		/*                 \/                           <-  changer options SQL ici  */
         			 String bddUtilisateur="prof";
         			 String bddMdp="prof_1234";
         			 String host="jdbc:mysql://192.168.1.49:3306/vert";    /* ou 8080 */
-                     																				debug.setText("Class.forName(\"com.mysql.jdbc.Driver\").newInstance();");
-                     nomU.setText(ulogin.getText());
+        			 sql="call getCon('"+ulogin.getText()+"','"+umdp.getText()+"');";
+        			 
+System.out.println("infoNomU.setText(ulogin.getText());)");
+                     infoNomU.setText(ulogin.getText());
                      Class.forName("com.mysql.jdbc.Driver").newInstance();
-                     																				debug.setText("Statement stmt=con.createStatement();"+"host = "+host+"SQL utilisateur = "+bddUtilisateur+"SQL mdp ="+bddMdp);
+System.out.println("Statement stmt=con.createStatement();"+"host = "+host+"SQL utilisateur = "+bddUtilisateur+"SQL mdp ="+bddMdp);
                      Connection con=DriverManager.getConnection(host,bddUtilisateur,bddMdp); 			/* ou 8080*/
-                     																				debug.setText("Statement stmt=con.createStatement();");
+                     																				
                      Statement stmt=con.createStatement();
-                     																				debug.setText("erreur L228 dans: select * from proprietaire where login='"+ulogin.getText()+"' and mdp='"+umdp.getText()+"");
-                     String sql="select * from proprietaire where login='"+ulogin.getText()+"' and mdp='"+umdp.getText()+"'";
+                     logintxt.setText(" L’identifiant ou le mot de passe est incorrect");
+                     
                      ResultSet rs=stmt.executeQuery(sql);
-                     															debug.setText("requéte exécutée");
+System.out.println("sql="+sql);
                      if(rs.next()) {
+                     bienvenue.setText("Bienvenue "+ulogin.getText()); 			/*texte de l'écrant de séléction*/
                      verif.setText("OK");
+                     CardLogin_.setVisible(false);
+             		 __CardSelection__.setVisible(true);
                      }
-                     else
-                     verif.setText("introuvable");
-                 }catch(Exception e1) {};
+                     else {
+                     
+                     }
+                  }
+        		 catch(Exception e1) {};
                  
         		
         	}
         });
-        verif.setBounds(202, 35, 348, 23);
-        loginpanel.add(verif);
+        verif.setBounds(202, 35, 109, 23);
+        CardLogin_.add(verif);
         
-        debug = new JLabel("");
-        debug.setBounds(10, 67, 1318, 70);
-        loginpanel.add(debug);
-        
-        JButton btnNewButton_3 = new JButton("test");
+        JButton btnNewButton_3 = new JButton("test envoi");
         btnNewButton_3.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-
+        		
+        		
         		try {		/*                 \/                           <-  changer options SQL ici  */
-       			 String bddUtilisateur="prof";
-       			 String bddMdp="prof_1234";
-       			 String host="jdbc:mysql://192.168.1.49:3306/vert";    /* ou 8080 */
-                    																				debug.setText("Class.forName(\"com.mysql.jdbc.Driver\").newInstance();");
-                    Class.forName("com.mysql.jdbc.Driver").newInstance();
-                    																				debug.setText("erreur config con sql");
-                    Connection con=DriverManager.getConnection(host,bddUtilisateur,bddMdp); 			/* ou 8080*/
-                    																				debug.setText("erreur L 262 Statement stmt=con.createStatement();");
-                    Statement stmt=con.createStatement();
-                    String sql="insert into proprietaire (Nom,Prenom,Adresse,telephone,login,mdp,email,role) values ('lenom','leprenom','ladresse','letel','lelogin','lemdp','lemail','lerole');";
-                    																				debug.setText("erreur L228 dans: la requéte:  "+sql);
-                    stmt.executeUpdate(sql);
-                    																				debug.setText("requéte exécutée");
+          			 String bddUtilisateur="prof";
+          			 String bddMdp="prof_1234";
+          			 String host="jdbc:mysql://192.168.1.49:3306/vert";    /* ou 8080 */
+          			 String sql="call getCon ('remi55','1234');";
+                       																				debug.setText("Class.forName(\"com.mysql.jdbc.Driver\").newInstance();");
+                       Class.forName("com.mysql.jdbc.Driver").newInstance();
+                       																				debug.setText("erreur config con sql");
+                       Connection con=DriverManager.getConnection(host,bddUtilisateur,bddMdp); 			/* ou 8080*/
+                       																				debug.setText("erreur L 262 Statement stmt=con.createStatement();");
+                       Statement stmt=con.createStatement();
+                       
+                       																				debug.setText("erreur L228 dans: la requéte:  "+sql);
+                       stmt.executeQuery(sql);
+                       																				debug.setText("erreur dans: resultset");
+                       ResultSet rs=stmt.executeQuery("call getCon ('remi55','1234');");
+                       																		debug.setText("erreur dans: if");
+                 	      if (rs.wasNull()) {
+                 	    	  debug.setText("null");
+                 	      }
 
-                }catch(Exception e1) {};
-                
-       		
-       	}
+							debug.setText("precedant:  "+debug.getText()+" ACTUEL non non null");
+                       
+                       																				
+                   }catch(Exception e1) {
+																	debug.setText("plantage?");
+                   };
+        		
         		
         }
+        }
+        
         );
-        btnNewButton_3.setBounds(7, 167, 89, 23);
-        loginpanel.add(btnNewButton_3);
+        btnNewButton_3.setBounds(321, 35, 89, 23);
+        CardLogin_.add(btnNewButton_3);
         
-        JPanel panel = new JPanel();
-        contientTout.add(panel, "name_6630839708200");
-        panel.setLayout(null);
-        
-        table = new JTable();
-        JTable table = new JTable(new DefaultTableModel(
-        	new Object[][] {
-        		{"type de gardiennage", "id","superficie"},
-        		{"interieur", "1","5.6"},
-        		{"exterieur", "2","3.6"},
+        debug = new JTextField();
+        debug.setHorizontalAlignment(SwingConstants.CENTER);
+        debug.setText("----------------------------debugage----------------------------");
+        debug.setForeground(Color.BLUE);
+        debug.setBackground(Color.LIGHT_GRAY);
+        debug.setBounds(10, 67, 1179, 42);
+        CardLogin_.add(debug);
+        debug.setColumns(10);
 
-        	},
-        	new String[] {
-        		"New column", "New column", "New column"
+        
+        CardInfo_ = new JPanel();									/*INFO sur la pension*/
+        CardInfo_.setVisible(false);
+        CardInfo_.setBackground(Color.WHITE);
+        contientTout.add(CardInfo_, "name_39649989349900");
+        CardInfo_.setLayout(null);
+        
+        bonjour = new JLabel("bonjour");
+        bonjour.setBounds(425, 15, 46, 14);
+        CardInfo_.add(bonjour);
+        
+        infoNomU = new JLabel("Responsable:");
+        infoNomU.setBounds(10, 36, 75, 14);
+        CardInfo_.add(infoNomU);
+        
+        ba = new JButton("admin?");
+        ba.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+							
+        		
         	}
-        ));
-        table.setBackground(Color.WHITE);
-        table.setBounds(10, 44, 572, 201);
-        panel.add(table);
+        });
+        ba.setBounds(481, 11, 101, 23);
+        CardInfo_.add(ba);
+        
+        actuelAdmin = new JLabel("jacki chan");
+        actuelAdmin.setBounds(142, 36, 517, 14);
+        CardInfo_.add(actuelAdmin);
+        
+        JLabel infoVille = new JLabel("ville:");
+        infoVille.setBounds(10, 61, 46, 14);
+        CardInfo_.add(infoVille);
+        
+        JLabel actuelVille = new JLabel("paris");
+        actuelVille.setBounds(142, 61, 46, 14);
+        CardInfo_.add(actuelVille);
+        
+        JLabel infoAdresse = new JLabel("adresse:");
+        infoAdresse.setBounds(10, 86, 46, 14);
+        CardInfo_.add(infoAdresse);
+        
+        JLabel actuelAdresse = new JLabel("10 rue de paris");
+        actuelAdresse.setBounds(142, 86, 116, 14);
+        CardInfo_.add(actuelAdresse);
+        
+        JLabel infoTel = new JLabel("telephone:");
+        infoTel.setBounds(10, 111, 75, 14);
+        CardInfo_.add(infoTel);
+        
+        JLabel actuelNum = new JLabel("06 06 06 06 06");
+        actuelNum.setBounds(142, 111, 116, 14);
+        CardInfo_.add(actuelNum);
+        
+        infoNomPen = new JLabel("Nom de la pension:");
+        infoNomPen.setBounds(10, 136, 101, 14);
+        CardInfo_.add(infoNomPen);
+        
+        JLabel actuelNomPen = new JLabel("pensionde la seine");
+        actuelNomPen.setBounds(142, 136, 116, 14);
+        CardInfo_.add(actuelNomPen);
+        
+        JLabel infoAdresseSi = new JLabel("adresse siege:");
+        infoAdresseSi.setBounds(10, 161, 101, 14);
+        CardInfo_.add(infoAdresseSi);
+        
+        JLabel actuelSiege = new JLabel("9 rue de paris");
+        actuelSiege.setBounds(142, 161, 116, 14);
+        CardInfo_.add(actuelSiege);
+        
+        JLabel infoLienLo = new JLabel("Lien logo:");
+        infoLienLo.setBounds(10, 186, 101, 14);
+        CardInfo_.add(infoLienLo);
+        
+        JLabel actuelLienLo = new JLabel("vert.com/ressources/logo.png");
+        actuelLienLo.setBounds(142, 186, 145, 14);
+        CardInfo_.add(actuelLienLo);
+        
+        JLabel infoPrixVa = new JLabel("prix par vaccin:");
+        infoPrixVa.setBounds(10, 211, 101, 14);
+        CardInfo_.add(infoPrixVa);
+        
+        JLabel infoPrixVer = new JLabel("prix par vermifuge:");
+        infoPrixVer.setBounds(10, 236, 101, 14);
+        CardInfo_.add(infoPrixVer);
+        
+        JLabel actuelPrixVa = new JLabel("6.5");
+        actuelPrixVa.setBounds(142, 211, 46, 14);
+        CardInfo_.add(actuelPrixVa);
+        
+        JLabel actuelPrixVer = new JLabel("5.6");
+        actuelPrixVer.setBounds(142, 236, 46, 14);
+        CardInfo_.add(actuelPrixVer);
+        
+        JButton btnNewButton = new JButton("editer les informations");
+        btnNewButton.setBounds(36, 261, 178, 23);
+        CardInfo_.add(btnNewButton);
+        
+        JButton pensionVersSelection = new JButton("retour");
+        pensionVersSelection.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		CardInfo_.setVisible(false);
+        		__CardSelection__.setVisible(true);
+        		
+        	}
+        });
+        pensionVersSelection.setBounds(326, 11, 89, 23);
+        CardInfo_.add(pensionVersSelection);
+        CardInfo_.setVisible(false);
 
         
-        JLabel lblNewLabel_18 = new JLabel("liste des box de la pension:");
-        lblNewLabel_18.setBounds(10, 21, 153, 22);
-        panel.add(lblNewLabel_18);
         
-        JButton btnNewButton_1 = new JButton("enregistrer");
-        btnNewButton_1.addActionListener(new ActionListener() {
+        contientTout.add(CardBox_, "name_278764592863900");
+        CardBox_.setLayout(null);
+
+
+
+        
+        JLabel texte1 = new JLabel("liste des box de la pension:");
+        texte1.setBounds(10, 21, 153, 22);
+        CardBox_.add(texte1);
+        
+        JButton enegistrerBox = new JButton("enregistrer");
+        enegistrerBox.setBounds(10, 258, 89, 23);
+        enegistrerBox.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         	}
         });
-        btnNewButton_1.setBounds(10, 258, 89, 23);
-        panel.add(btnNewButton_1);
+        CardBox_.add(enegistrerBox);
         
-        JLabel lblNewLabel_19 = new JLabel("pension de paris");
-        lblNewLabel_19.setBounds(143, 25, 127, 14);
-        panel.add(lblNewLabel_19);
+        JLabel texte2 = new JLabel("pension de paris");
+        texte2.setBounds(178, 25, 127, 14);
+        CardBox_.add(texte2);
         
-        JButton btnNewButton_2 = new JButton("ajouter une ligne");
-        btnNewButton_2.setBounds(118, 258, 127, 23);
-        panel.add(btnNewButton_2);
-    }
-}
+        JButton ajouterBox = new JButton("ajouter une ligne");
+        ajouterBox.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+
+        	}
+        });
+
+        	
+        	
+
+
+        ajouterBox.setBounds(118, 258, 152, 23);
+        CardBox_.add(ajouterBox);
+        
+        textField = new JTextField();
+        textField.setBounds(689, 76, 86, 20);
+        CardBox_.add(textField);
+        textField.setColumns(10);
+        
+        JButton retourGestionBox = new JButton("retour");
+        retourGestionBox.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		CardBox_.setVisible(false);
+        		__CardSelection__.setVisible(true);
+        		
+        	}
+        });
+        retourGestionBox.setBounds(493, 0, 89, 23);
+        CardBox_.add(retourGestionBox);
+        
+        debug2 = new JTextField();
+        debug2.setBounds(218, 227, 738, 20);
+        CardBox_.add(debug2);
+        debug2.setColumns(10);
+        
+        
+
+        																		// create object of table and table model
+        JTable table = new JTable();
+        table.setBounds(20, 54, 422, 161);
+        DefaultTableModel dtm = new DefaultTableModel(0, 0);
+        CardBox_.add(table);
+        																		// add header of the table
+String header[] = new String[] { "id", "type", "superficie" };
+       																			// add header in table model     
+        dtm.setColumnIdentifiers(header);
+        																		//set model into the table object
+              table.setModel(dtm);
+              																	// add row dynamically into the table              
+System.out.println("|______________________SQL_____________________|");
+System.out.println("|info sql: host="+host);
+System.out.println("|user="+bddUtilisateur+" mdp= "+bddMdp);
+System.out.println("|______________________________________________|");
+System.out.println("");
+System.out.println("");
+System.out.println("");
+
+              
+              int idBox=0;
+       for (int count = 1; count <= 6; count++) {
+
+    	   idBox ++;
+   		
+System.out.println("|--------------Boucle sql box n°"+idBox+"--------------|");
+    	   try {		/*                 \/                           <-  changer options SQL ici  */
+
+    		   String sql="select * from box where id='"+idBox+"';";
+
+System.out.println("requete: "+sql);
+System.out.println("idBox :"+idBox);
+
+               infoNomU.setText(ulogin.getText());
+               Class.forName("com.mysql.jdbc.Driver").newInstance();
+               Connection con=DriverManager.getConnection(host,bddUtilisateur,bddMdp); 			/* ou 8080*/
+               Statement stmt=con.createStatement();
+               ResultSet rs=stmt.executeQuery(sql);
+               										
+System.out.println("---recup info: ");
+
+			   while (rs.next()) {
+System.out.println(" ajout d'une ligne");
+	               dtm.addRow(new Object[] {rs.getInt(1),rs.getInt(2),rs.getInt(3),});
+	               System.out.println("id="+rs.getInt(1)+" id gardiennage= "+rs.getInt(2)+" idpension= "+rs.getInt(3));
+		        }
+System.out.println("---fin recup ");
+               		debug2.setText(debug2.getText()+"idBox"); 
+System.out.println("fin du try catch");
+               		
+               if(rs.next()) {
+            	   
+               }
+               else {}
+               }catch(Exception e1) {
+System.out.println("erreur= "+e1);
+               };
+
+System.out.println("|----------------------------------------------|");
+System.out.println("");
+System.out.println("");
+System.out.println("");
+
+       }
+        }
+    }	
+
+
+
+
