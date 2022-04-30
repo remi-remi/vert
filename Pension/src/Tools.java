@@ -2,11 +2,14 @@ public class Tools {
 
 	/**
 	 * envoie le texte de l'input dans la console
-	 * @param text à écrire dans la console 
+	 * @param text Ã  Ã©rire dans la console 
 	 * 
 	 */
 	  static void print(String input) {
 		    System.out.println(input);
+		  }
+	  static void print(int input) {
+		    System.out.println(""+input);
 		  }
 	
 	
@@ -14,12 +17,11 @@ public class Tools {
 	   * @
 	   * @return il retourne 0
 	   */
-	  static int test()
+	  static int getLigne()
 	  {
-		  int a=1;
-		  String b;
-		  b=String.valueOf(a);
-          return 0;
+	    	int currentLine = new Throwable().getStackTrace()[0].getLineNumber();
+	    	Tools.print("["+currentLine+"]");
+	    	return currentLine;
 	  }
 
 	 

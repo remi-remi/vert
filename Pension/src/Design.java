@@ -6,8 +6,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-
-
 import javax.swing.JTextField;
 import javax.swing.JLabel;
 import javax.swing.JButton;
@@ -28,11 +26,13 @@ import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import java.awt.Window.Type;
 import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.CompoundBorder;
 import java.awt.Dialog.ModalExclusionType;
 import java.awt.Canvas;
+import javax.swing.JSeparator;
 
 /*https://www.tutorialsfield.com/how-to-connect-mysql-database-in-java-using-eclipse/*/
 
@@ -53,19 +53,16 @@ public class Design extends JFrame {
     private JLabel lblNewLabel_1;
     private JButton verif;
     private JLabel bonjour;
-    private JLabel infoNomU;
-    private JButton ba;
-    private JLabel actuelAdmin;
-    private JLabel infoNomPen;
-	private JTextField textField;
-	private JTextField textField_1;
+	private JTextField nBoxType;
+	private JTextField nBoxTaille;
 
 		 String bddUtilisateur="prof";
 		 String bddMdp="prof_1234";
-		 String host="jdbc:mysql://192.168.1.49:3306/vert";    /* ou 8080 */
+		 String host="jdbc:mysql://172.29.103.11:3306/vert";    /*3306 ou 8080 */
 		 String sql;
 		 int uIdPension=666;
-		 public int nbBox=2;
+		 public int nbBox=666;
+		 private JTable tablePension;
 
 
     /**
@@ -81,8 +78,7 @@ public class Design extends JFrame {
                     e.printStackTrace();
                 }
             }
-            
-            
+
         });
     }
 
@@ -91,25 +87,36 @@ public class Design extends JFrame {
      */
     public Design() {
     	setForeground(new Color(255, 215, 0));
-    	setBackground(new Color(255, 0, 0));
+    	setBackground(Color.WHITE);
     	
     	
 		 JTable table = new JTable();
 		 table.setBackground(new Color(224, 255, 255));
 		 table.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		 table.setFillsViewportHeight(true);
-	     table.setBounds(10, 29, 343, 238);
-	     DefaultTableModel dtm = new DefaultTableModel(0, 0);
-	     CardBox_.add(table);
-	     String header[] = new String[] {"id", "taille", "type","tarif"};																	         
-	     dtm.setColumnIdentifiers(header);
-	     table.setModel(dtm);															
-	     
-	     
+	     table.setBounds(78, 139, 405, 250);
+	     DefaultTableModel tableModel = new DefaultTableModel(0, 0) {
+	    	 @Override
+	    	 public boolean isCellEditable(int line, int column) {
+	    		 if(column == 0 || column == 3)
+	    			 return false;
+	    		 else
+	    			 return true;
+	    	 }
+	     };
+
+	    	   
+	    	   
+	     String header[] = new String[] {"id", "taille", "type","tarif"};
+	     tableModel.setColumnIdentifiers(header);
+	     table.setModel(tableModel);															
+	     JScrollPane vneScrollPane = new JScrollPane(table);
+	     vneScrollPane.setBounds(7, 40, 396, 305);
+	     CardBox_.add(vneScrollPane);
 	     
         setTitle("gestion pension box et gardiennage");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100, 100, 389, 380);
+        setBounds(100, 100, 430, 435);
         
         contientTout = new JPanel();												/*CONTIENT TOUT*/
         contientTout.setBackground(new Color(127, 255, 212));
@@ -136,7 +143,7 @@ public class Design extends JFrame {
         		
         	}
         });
-        boutonDeconnexion.setBounds(188, 79, 165, 115);
+        boutonDeconnexion.setBounds(210, 85, 190, 145);
         __CardSelection__.add(boutonDeconnexion);
         
         JLabel bienvenue = new JLabel("bienvenue (ulogin)");
@@ -144,7 +151,7 @@ public class Design extends JFrame {
         bienvenue.setOpaque(true);
         bienvenue.setHorizontalAlignment(SwingConstants.CENTER);
         bienvenue.setFont(new Font("Tahoma", Font.PLAIN, 20));
-        bienvenue.setBounds(10, 11, 343, 57);
+        bienvenue.setBounds(10, 10, 390, 60);
         __CardSelection__.add(bienvenue);
         
         JButton btnGP = new JButton("gestion pension");							
@@ -158,7 +165,7 @@ public class Design extends JFrame {
         btnGP.setForeground(new Color(0, 0, 0));
         btnGP.setBackground(new Color(176,224,230));
         btnGP.setFont(new Font("Tahoma", Font.PLAIN, 15));
-        btnGP.setBounds(188, 205, 165, 115);
+        btnGP.setBounds(210, 242, 190, 145);
         __CardSelection__.add(btnGP);
         
 
@@ -166,8 +173,8 @@ public class Design extends JFrame {
         btnGB.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));/*BOUTON BOX*/
         btnGB.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		dtm.getDataVector().removeAllElements();
-        		dtm.fireTableDataChanged();
+        		tableModel.getDataVector().removeAllElements();
+        		tableModel.fireTableDataChanged();
         		CardBox_.setVisible(true);
         		__CardSelection__.setVisible(false);
         	
@@ -178,7 +185,6 @@ public class Design extends JFrame {
         	Tools.print("|______________________________________________|");
         	Tools.print("");
         	Tools.print("");
-
 
         	              String sql;
         	              sql="call getBoxNombre("+uIdPension+");";
@@ -192,46 +198,51 @@ public class Design extends JFrame {
         		              rs=stmt.executeQuery(sql);
         		              while(rs.next()) {
         		            	 /*nbBox=rs.getInt(1);*/
-Tools.print("execution sql: "+sql);
-Tools.print("nb de box de cette pension: "+rs.getInt(1));
+        		            	  Tools.print("execution sql: "+sql);
+        		            	  Tools.print("nb de box de cette pension: "+rs.getInt(1));
 							  nbBox=rs.getInt(1);
         		              }
 
         				} catch (SQLException e2) {
-Tools.print("ERREUR SQL : "+e2);
+        					Tools.print("ERREUR SQL : "+e2);
         					e2.printStackTrace();
         				}
         	              
         	              sql="call getBox("+uIdPension+");";
         	              
-Tools.print("");
-Tools.print("|--------------sql des box n° "+uIdPension+"--------------|");
+        	              Tools.print("");
+        	              Tools.print("|--------------sql des box n: "+uIdPension+"--------------|");
+        	              
         	    	   try {		/*                 \/                           <-  changer options SQL ici  */
-Tools.print("requete: "+sql);
-        	               infoNomU.setText(ulogin.getText());
-        	               Class.forName("com.mysql.jdbc.Driver").newInstance();
+        	    		   
+        	    		   Tools.print("requete: "+sql);
+        	               /*infoNomU.setText(ulogin.getText());*/
+        	               Class.forName("com.mysql.jdbc.Driver");
         	               con=DriverManager.getConnection(host,bddUtilisateur,bddMdp);
         	               stmt=con.createStatement();
         	               rs=stmt.executeQuery(sql);
-        	               										
-Tools.print("");
+        	               int ligne=1;
+        	               Tools.print("");
         				   while (rs.next()) {
         					   
-Tools.print("----ajout d'une ligne----|");
-							
-        		               dtm.addRow(new Object[] {rs.getString(1),rs.getFloat(2),rs.getString(3),rs.getString(4),});
-Tools.print("id="+rs.getString(1)+" taille= "+rs.getFloat(2)+" gardiennage= "+rs.getString(3)+" prix= "+rs.getString(4));
-Tools.print("");
+        					   Tools.print("----ajout d'une ligne----|");
+        					   
+
+        		               tableModel.addRow(new Object[] {rs.getString(1),rs.getFloat(2),rs.getString(3),rs.getString(4),});
+        		               Tools.print("id="+rs.getString(1)+" taille= "+rs.getFloat(2)+" gardiennage= "+rs.getString(3)+" prix= "+rs.getString(4));
+        		               Tools.print("");
+        		               ligne++;
         			        }
-Tools.print("-------------------------|");
+        				   Tools.print("-------------------------|");
+        					
 
         	    	   }
         	    	   		catch(Exception e1) {
         	               };
-Tools.print("");
-Tools.print("|---------------------------------------------|");
-Tools.print("");
-Tools.print("");
+        	               Tools.print("");
+        	               Tools.print("|---------------------------------------------|");
+        	               Tools.print("");
+        	               Tools.print("");
 
         	}
         });
@@ -239,7 +250,7 @@ Tools.print("");
         btnGB.setForeground(Color.BLACK);
         btnGB.setFont(new Font("Tahoma", Font.PLAIN, 15));
         btnGB.setBackground(new Color(152, 251, 152));
-        btnGB.setBounds(10, 79, 165, 115);
+        btnGB.setBounds(10, 85, 190, 145);
         __CardSelection__.add(btnGB);
         
         JButton btnGG = new JButton("gestion gardiennage");
@@ -248,7 +259,7 @@ Tools.print("");
         btnGG.setForeground(Color.BLACK);
         btnGG.setFont(new Font("Tahoma", Font.PLAIN, 15));
         btnGG.setBackground(Color.ORANGE);
-        btnGG.setBounds(10, 205, 165, 115);
+        btnGG.setBounds(10, 242, 190, 145);
         __CardSelection__.add(btnGG);
     
         CardLogin_ = new JPanel();
@@ -260,20 +271,20 @@ Tools.print("");
         ulogin = new JTextField();
         ulogin.setColumns(10);
         ulogin.setBackground(Color.WHITE);
-        ulogin.setBounds(10, 36, 100, 20);
+        ulogin.setBounds(12, 44, 120, 30);
         CardLogin_.add(ulogin);
         
         umdp = new JPasswordField();
         umdp.setBackground(Color.WHITE);
-        umdp.setBounds(120, 36, 100, 20);
+        umdp.setBounds(138, 44, 120, 30);
         CardLogin_.add(umdp);
         
         lblNewLabel = new JLabel("login");
-        lblNewLabel.setBounds(10, 11, 46, 14);
+        lblNewLabel.setBounds(12, 18, 46, 14);
         CardLogin_.add(lblNewLabel);
         
         lblNewLabel_1 = new JLabel("mot de passe");
-        lblNewLabel_1.setBounds(120, 11, 96, 14);
+        lblNewLabel_1.setBounds(142, 18, 96, 14);
         CardLogin_.add(lblNewLabel_1);
         
         JLabel logintxt = new JLabel("");
@@ -282,7 +293,7 @@ Tools.print("");
         logintxt.setOpaque(true);
         logintxt.setBackground(Color.LIGHT_GRAY);
         logintxt.setForeground(new Color(255, 0, 0));
-        logintxt.setBounds(10, 67, 343, 42);
+        logintxt.setBounds(12, 84, 394, 42);
         CardLogin_.add(logintxt);
         
         verif = new JButton("connecter");
@@ -298,32 +309,29 @@ Tools.print("");
         	    /*AUTO CON !!! -------------------------------------------------------------------------------------------------------------------------------------------!!!!!!!!!!!!!-*/
         		
         		
-        		
         		 try {		/*                 \/                           <-  changer options SQL ici  */
-        			 String bddUtilisateur="prof";
-        			 String bddMdp="prof_1234";
-        			 String host="jdbc:mysql://192.168.1.49:3306/vert";    /* ou 8080 */
+        			 Tools.print(sql);
         			 sql="call getCon('"+ulogin.getText()+"','"+umdp.getText()+"');";
         			 
         			 
-Tools.print("infoNomU.setText(ulogin.getText());)");
-                     infoNomU.setText(ulogin.getText());
-                     Class.forName("com.mysql.jdbc.Driver").newInstance();
-Tools.print("Statement stmt=con.createStatement();"+"host = "+host+"SQL utilisateur = "+bddUtilisateur+"SQL mdp ="+bddMdp);
-                     Connection con=DriverManager.getConnection(host,bddUtilisateur,bddMdp); 			/* ou 8080*/
+        			 Tools.print("infoNomU.setText(ulogin.getText());)");
+                     /*infoNomU.setText(ulogin.getText());*/
+                     Class.forName("com.mysql.jdbc.Driver");
+                     Tools.print("Statement stmt=con.createStatement();"+"host = "+host+"SQL utilisateur = "+bddUtilisateur+"SQL mdp ="+bddMdp);
+                     Connection con=DriverManager.getConnection(host,bddUtilisateur,bddMdp);
                      																				
                      Statement stmt=con.createStatement();
-                     logintxt.setText(" L’identifiant ou le mot de passe est incorrect");
+                     logintxt.setText(" L'identifiant ou le mot de passe est incorrect");
                      
                      ResultSet rs=stmt.executeQuery(sql);
                      
-Tools.print("authentification de lutilisateur en sql="+sql);
+                     Tools.print("authentification de lutilisateur en sql="+sql);
 
 
                      if(rs.next()) {
                      uIdPension=rs.getInt(11);
-Tools.print("nb de la pension: "+uIdPension);
-                     bienvenue.setText("Bienvenue "+ulogin.getText()); 			/*texte de l'écrant de séléction*/
+                     Tools.print("nb de la pension: "+uIdPension);
+                     bienvenue.setText("Bienvenue "+ulogin.getText()); 			/*texte de l'Ã©crant de sÃ©lÃ©ction*/
                      verif.setText("OK");
                      CardLogin_.setVisible(false);
              		 __CardSelection__.setVisible(true);
@@ -337,7 +345,7 @@ Tools.print("nb de la pension: "+uIdPension);
         		
         	}
         });
-        verif.setBounds(253, 35, 100, 23);
+        verif.setBounds(269, 30, 137, 42);
         CardLogin_.add(verif);
 
         
@@ -351,150 +359,12 @@ Tools.print("nb de la pension: "+uIdPension);
         bonjour.setBounds(425, 15, 46, 14);
         CardInfo_.add(bonjour);
         
-        infoNomU = new JLabel("Responsable:");
-        infoNomU.setBounds(10, 36, 75, 14);
-        CardInfo_.add(infoNomU);
-        
-        ba = new JButton("admin?");
-        ba.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-								
-        	}
-        });
-        
-        ba.setBounds(481, 11, 101, 23);
-        CardInfo_.add(ba);
-        
-        actuelAdmin = new JLabel("jacki chan");
-        actuelAdmin.setBounds(142, 36, 517, 14);
-        CardInfo_.add(actuelAdmin);
-        
-        JLabel infoVille = new JLabel("ville:");
-        infoVille.setBounds(10, 61, 46, 14);
-        CardInfo_.add(infoVille);
-        
-        JLabel actuelVille = new JLabel("paris");
-        actuelVille.setBounds(142, 61, 46, 14);
-        CardInfo_.add(actuelVille);
-        
-        JLabel infoAdresse = new JLabel("adresse:");
-        infoAdresse.setBounds(10, 86, 46, 14);
-        CardInfo_.add(infoAdresse);
-        
-        JLabel actuelAdresse = new JLabel("10 rue de paris");
-        actuelAdresse.setBounds(142, 86, 116, 14);
-        CardInfo_.add(actuelAdresse);
-        
-        JLabel infoTel = new JLabel("telephone:");
-        infoTel.setBounds(10, 111, 75, 14);
-        CardInfo_.add(infoTel);
-        
-        JLabel actuelNum = new JLabel("06 06 06 06 06");
-        actuelNum.setBounds(142, 111, 116, 14);
-        CardInfo_.add(actuelNum);
-        
-        infoNomPen = new JLabel("Nom de la pension:");
-        infoNomPen.setBounds(10, 136, 101, 14);
-        CardInfo_.add(infoNomPen);
-        
-        JLabel actuelNomPen = new JLabel("pension de la seine");
-        actuelNomPen.setBounds(142, 136, 116, 14);
-        CardInfo_.add(actuelNomPen);
-        
-        JLabel infoAdresseSi = new JLabel("adresse siege:");
-        infoAdresseSi.setBounds(10, 161, 101, 14);
-        CardInfo_.add(infoAdresseSi);
-        
-        JLabel actuelSiege = new JLabel("9 rue de paris");
-        actuelSiege.setBounds(142, 161, 116, 14);
-        CardInfo_.add(actuelSiege);
-        
-        JLabel infoLienLo = new JLabel("Lien logo:");
-        infoLienLo.setBounds(10, 186, 101, 14);
-        CardInfo_.add(infoLienLo);
-        
-        JLabel actuelLienLo = new JLabel("vert.com/ressources/logo.png");
-        actuelLienLo.setBounds(142, 186, 145, 14);
-        CardInfo_.add(actuelLienLo);
-        
-        JLabel infoPrixVa = new JLabel("prix par vaccin:");
-        infoPrixVa.setBounds(10, 211, 101, 14);
-        CardInfo_.add(infoPrixVa);
-        
-        JLabel infoPrixVer = new JLabel("prix par vermifuge:");
-        infoPrixVer.setBounds(10, 236, 101, 14);
-        CardInfo_.add(infoPrixVer);
-        
-        JLabel actuelPrixVa = new JLabel("6.5");
-        actuelPrixVa.setBounds(142, 211, 46, 14);
-        CardInfo_.add(actuelPrixVa);
-        
-        JLabel actuelPrixVer = new JLabel("5.6");
-        actuelPrixVer.setBounds(142, 236, 46, 14);
-        CardInfo_.add(actuelPrixVer);
-        
         JButton btnNewButton = new JButton("editer les informations");
-        btnNewButton.setBounds(80, 297, 178, 23);
-        CardInfo_.add(btnNewButton);
-        
-        JButton pensionVersSelection = new JButton("retour");
-        pensionVersSelection.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		CardInfo_.setVisible(false);
-        		__CardSelection__.setVisible(true);
-        		
-        	}
-        });
-        pensionVersSelection.setBounds(264, 11, 89, 23);
-        CardInfo_.add(pensionVersSelection);
-        CardInfo_.setVisible(false);
+        btnNewButton.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+        		Tools.print("ligne ~365 action manquante : enregistrer");
+        		sql="";														//--------------------Envoi des info de la pension vers le sql
 
-        
-        
-        contientTout.add(CardBox_, "name_278764592863900");
-        CardBox_.setLayout(null);
-
-
-
-        
-        JLabel texte1 = new JLabel("liste des box:");
-        texte1.setBounds(10, 4, 89, 22);
-        CardBox_.add(texte1);
-        
-        JButton enegistrerBox = new JButton("enregistrer");
-        enegistrerBox.setFont(new Font("Tahoma", Font.PLAIN, 10));
-        enegistrerBox.setBounds(10, 308, 89, 23);
-        enegistrerBox.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        																			///------------------------------recupération des box creation d'un objet
-
-        	float ft=1.991f;
-        	
-        	ArrayList<Box> boxList =new ArrayList<>();
-        	Tools.print("nbBox="+nbBox);
-       		for(int i = 0; i<nbBox;i++){
-       			int idTab =Integer.parseInt(table.getValueAt((i), 0).toString());
-       			Float taille =Float.parseFloat(table.getValueAt((i), 1).toString());
-       			String typeTab =table.getValueAt(i, 2).toString();
-       			Float tailleTab =Float.parseFloat(table.getValueAt(i, 3).toString());
-       			Integer a=1;
-       			
-       			boxList.add(new Box(idTab,taille.toString(),typeTab,tailleTab));
-
-Tools.print("");
-Tools.print("______________ligne de la box n: "+i+"____________________");
-
-Tools.print("| id | taille | type           |tarif|");
-Tools.print("| "+idTab+" | "+taille.toString()+"    |"+typeTab.toString()+"| "+tailleTab.toString()+" |");  	
-
-
-
-
-			String test;
-				test=boxList.get(0).getSQL();
-
-				sql="CALL alterBox ("+idTab+", "+taille+",'"+typeTab+"' , "+tailleTab+")";																										//--------------------objet part vers SQL
-				//sql="CALL alterBox (int id, taille float, libelle char, prix double)";
 
 				Connection con;
 				try {
@@ -507,16 +377,151 @@ Tools.print("| "+idTab+" | "+taille.toString()+"    |"+typeTab.toString()+"| "+t
 					/*preparedStatement.setInt(1, id);*/
 		/*ResultSet resultSet = */
 		preparedStatement.executeQuery();
-		Tools.print("requéte:  "+sql);
+			Tools.print("requÃ©te:  "+sql);
 				} catch (SQLException e1) {
-					Tools.print("ERREUR ! dans la requéte:  "+sql);
+					Tools.print("ERREUR ! dans la requÃ©te:  "+sql);
+					e1.printStackTrace();
+				} 
+				
+       		
+        		
+        		
+        		
+        	}
+        });
+        btnNewButton.setBounds(197, 353, 212, 36);
+        CardInfo_.add(btnNewButton);
+        
+        JButton pensionVersSelection = new JButton("retour");
+        pensionVersSelection.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		CardInfo_.setVisible(false);
+        		__CardSelection__.setVisible(true);
+        		
+        	}
+        });
+        
+        pensionVersSelection.setBounds(318, 11, 89, 23);
+        CardInfo_.add(pensionVersSelection);
+        
+        tablePension = new JTable();
+        tablePension.setFont(new Font("Dialog", Font.PLAIN, 15));											//----------------prend les info de la pension pour les afficher--------------------
+        
+
+        
+		 try {
+			 Tools.print(sql);
+			 sql="select * from pension where id='1';";
+
+             Class.forName("com.mysql.jdbc.Driver");
+             Connection con=DriverManager.getConnection(host,bddUtilisateur,bddMdp);				
+             Statement stmt=con.createStatement();
+             ResultSet rs=stmt.executeQuery(sql);
+
+             if(rs.next()) {
+
+             }
+             else {}
+          }
+		 catch(Exception e1) {};
+        
+        
+        
+        
+        tablePension.setModel(new DefaultTableModel(
+        	new Object[][] {
+        		{"nom de la pension", ""},
+        		{"responsable", ""},
+        		{"ville", ""},
+        		{"adresse", null},
+        		{"telephone", null},
+        		{"nom dirigeant", ""},
+        		{"adresse siege social", ""},
+        		{"lien vers le logo", null},
+        		{"prix vaccin", null},
+        		{"prix vermifuge", null},
+        	},
+        	new String[] {
+        		"nom", "valeur"
+        	}
+        )
+   		        		
+        		);
+        tablePension.getColumnModel().getColumn(0).setPreferredWidth(181);
+        tablePension.getColumnModel().getColumn(1).setPreferredWidth(272);
+
+        	
+        	
+        	
+   	     ;
+        	
+        ;
+        tablePension.setBounds(12, 141, 394, 170);
+        CardInfo_.add(tablePension);
+        
+        JLabel decoPension = new JLabel("N I F T Y");
+        decoPension.setBackground(Color.GRAY);
+        decoPension.setOpaque(true);
+        decoPension.setHorizontalAlignment(SwingConstants.CENTER);
+        decoPension.setFont(new Font("Dialog", Font.BOLD, 20));
+        decoPension.setBounds(12, 55, 394, 74);
+        CardInfo_.add(decoPension);
+        CardInfo_.setVisible(false);
+
+        
+        contientTout.add(CardBox_, "name_278764592863900");
+        CardBox_.setLayout(null);
+
+        
+        JLabel texte1 = new JLabel("liste des box:");
+        texte1.setBounds(10, 4, 116, 22);
+        CardBox_.add(texte1);
+        
+        JButton enegistrerBox = new JButton("enregistrer");
+        enegistrerBox.setFont(new Font("Tahoma", Font.PLAIN, 10));
+        enegistrerBox.setBounds(12, 367, 89, 22);
+        enegistrerBox.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        																			///------------------------------recupÃ©ration des box creation d'un objet
+
+        	
+        	ArrayList<Box> boxList =new ArrayList<>();
+        	Tools.print("nbBox="+nbBox);
+       		for(int i = 0; i<nbBox;i++){
+       			int idTab =Integer.parseInt(table.getValueAt((i), 0).toString());
+       			Float taille =Float.parseFloat(table.getValueAt((i), 1).toString());
+       			String typeTab =table.getValueAt(i, 2).toString();
+       			Float tailleTab =Float.parseFloat(table.getValueAt(i, 3).toString());
+       			
+       			boxList.add(new Box(idTab,taille.toString(),typeTab,tailleTab));
+
+       			Tools.print("");
+       			Tools.print("______________ligne de la box n: "+i+"____________________");
+       			Tools.print("| id | taille | type           |tarif|");
+       			Tools.print("| "+idTab+" | "+taille.toString()+"    |"+typeTab.toString()+"| "+tailleTab.toString()+" |");  	
+
+				sql="CALL alterBox ("+idTab+", "+taille+",'"+typeTab+"' , "+tailleTab+")";														//--------------------objet part vers SQL
+
+
+				Connection con;
+				try {
+					con = DriverManager.getConnection(host,bddUtilisateur,bddMdp);
+					Statement stmt=con.createStatement();
+					ResultSet rs=stmt.executeQuery(sql);
+
+
+					PreparedStatement preparedStatement = con.prepareStatement(sql);
+					/*preparedStatement.setInt(1, id);*/
+		/*ResultSet resultSet = */
+		preparedStatement.executeQuery();
+			Tools.print("requÃ©te:  "+sql);
+				} catch (SQLException e1) {
+					Tools.print("ERREUR ! dans la requÃ©te:  "+sql);
 					e1.printStackTrace();
 				} 
 				
        		}
-Tools.print("______________________________________________________");
-
-
+       		Tools.print("______________________________________________________");
 
         	}
         });
@@ -524,19 +529,36 @@ Tools.print("______________________________________________________");
         CardBox_.add(enegistrerBox);
         
         JLabel texte2 = new JLabel("pension de paris");
-        texte2.setBounds(87, 8, 135, 14);
+        texte2.setBounds(121, 8, 135, 14);
         CardBox_.add(texte2);
         
-        JButton ajouterBox = new JButton("ajouter une ligne");
+        JButton ajouterBox = new JButton("ajouter box");
         ajouterBox.setHorizontalAlignment(SwingConstants.LEFT);
         ajouterBox.setFont(new Font("Tahoma", Font.PLAIN, 10));
         ajouterBox.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
+        	public void actionPerformed(ActionEvent e) {											                                    //-----------------------AddBox
+        		
+   
+				sql="call addBox (oLibelle varchar(30), oIdPension int, oSuperficie float);";
+				sql="call addBox ('"+nBoxType.getText()+"', '"+uIdPension+"', '"+nBoxTaille.getText()+"');";
 
+
+				Connection con;
+				try {
+					con = DriverManager.getConnection(host,bddUtilisateur,bddMdp);
+					Statement stmt=con.createStatement();
+					ResultSet rs=stmt.executeQuery(sql);
+					nbBox++;
+			Tools.print("requÃ©te:  "+sql);
+				} catch (SQLException e1) {
+					Tools.print("ERREUR ! dans la requÃ©te:  "+sql);
+					e1.printStackTrace();
+				}
+        		
         	}
         });
 
-        ajouterBox.setBounds(237, 278, 116, 23);
+        ajouterBox.setBounds(316, 366, 89, 23);
         CardBox_.add(ajouterBox);
         
         JButton retourGestionBox = new JButton("retour");
@@ -548,16 +570,30 @@ Tools.print("______________________________________________________");
         		
         	}
         });
-        retourGestionBox.setBounds(274, 4, 89, 23);
+        
+        retourGestionBox.setBounds(316, 5, 89, 23);
         CardBox_.add(retourGestionBox);
         
-        textField = new JTextField();
-        textField.setBounds(10, 279, 86, 20);
-        CardBox_.add(textField);
-        textField.setColumns(10);
+        nBoxType = new JTextField();
+        nBoxType.setBounds(132, 370, 86, 20);
+        CardBox_.add(nBoxType);
+        nBoxType.setColumns(10);
         
-        textField_1 = new JTextField();
-        textField_1.setBounds(106, 279, 86, 20);
-        CardBox_.add(textField_1);
-        textField_1.setColumns(10);}	
+        nBoxTaille = new JTextField();
+        nBoxTaille.setBounds(220, 370, 86, 20);
+        CardBox_.add(nBoxTaille);
+        nBoxTaille.setColumns(10);
+        
+        JSeparator separator = new JSeparator();
+        separator.setOrientation(SwingConstants.VERTICAL);
+        separator.setBounds(121, 351, 16, 50);
+        CardBox_.add(separator);
+        
+        JLabel lblTailleBox = new JLabel("taille");
+        lblTailleBox.setBounds(224, 351, 70, 15);
+        CardBox_.add(lblTailleBox);
+        
+        JLabel lblType = new JLabel("type");
+        lblType.setBounds(132, 351, 70, 15);
+        CardBox_.add(lblType);}	
 }
