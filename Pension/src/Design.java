@@ -1,40 +1,34 @@
-import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.sql.*;
-import java.util.ArrayList;
-import java.awt.Color;
-import javax.swing.JPasswordField;
-import java.awt.CardLayout;
-import java.awt.FlowLayout;
-import javax.swing.JTextPane;
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import java.awt.Font;
-import java.awt.Rectangle;
-import javax.swing.UIManager;
-import javax.swing.border.BevelBorder;
-import java.awt.Window.Type;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.border.LineBorder;
-import javax.swing.border.SoftBevelBorder;
-import javax.swing.border.CompoundBorder;
-import java.awt.Dialog.ModalExclusionType;
-import java.awt.Canvas;
-import javax.swing.JSeparator;
-import java.awt.SystemColor;
-import java.awt.Component;
+import DAO.BoxDAO;
+import model.Box;
 
 /*https://www.tutorialsfield.com/how-to-connect-mysql-database-in-java-using-eclipse/*/
 
@@ -44,6 +38,8 @@ public class Design extends JFrame {
 	 * 
 	 */
 	JPanel CardBox_ = new JPanel();
+	
+	private ArrayList<Box> boxes;
 
 	private JPanel contientTout;
 	private JPanel CardInfo_;
@@ -60,12 +56,13 @@ public class Design extends JFrame {
 
 	String bddUtilisateur = "prof";
 	String bddMdp = "prof_1234";
-	String host = "jdbc:mysql://192.168.1.49:3306/vert"; /* 3306 ou 8080 */
+	String host = "jdbc:mysql://192.168.137.215:3306/vert"; /* 3306 ou 8080 */
 	/* 3306 ou 8080 */
 	String sql;
 	int uIdPension = 0;
 	public int nbBox = 0;
 	private JTable tablePension;
+
 	/// var pension
 	String pensionVille = null;
 	String pensionAdresse = null;
@@ -78,6 +75,8 @@ public class Design extends JFrame {
 	String pensionAdresseLogo = null;
 	String pensionPrixVaccin = null;
 	String pensionPrixVermifuge = null;
+	BoxDAO boxDAO = new BoxDAO();
+
     ///___________________________________
 	/**
 	 * Launch the application.
@@ -125,6 +124,27 @@ public class Design extends JFrame {
 
 			}
 		};
+		
+		tablePension = new JTable();
+		tablePension.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		tablePension.setBackground(new Color(224, 255, 255));
+		tablePension.setFont(new Font("Dialog", Font.PLAIN, 15)); 	
+		tablePension.setModel(new DefaultTableModel(new Object[][] { 
+			{ "nom de la pension", null },
+			{ "responsable", null }, 
+			{ "ville", null }, 
+			{ "adresse", null },
+			{ "telephone", null }, 
+			{ "nom dirigeant", null },
+			{ "adresse siege social", null }, 
+			{ "lien vers le logo", null },
+			{ "prix vaccin", null }, 
+			{ "prix vermifuge", null }, 
+			},
+			new String[] { "nom", "valeur" }));
+			tablePension.getColumnModel().getColumn(0).setPreferredWidth(181);
+			tablePension.getColumnModel().getColumn(1).setPreferredWidth(272);
+			tablePension.setBounds(12, 126, 392, 160);
 
 		String header[] = new String[] { "id", "taille", "type", "tarif" };
 		tableModel.setColumnIdentifiers(header);
@@ -181,84 +201,11 @@ public class Design extends JFrame {
 		btnGP.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));/* BOUTON GESTION PENSION */
 		btnGP.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				// --------------------------------prend les INFO DE LA PENSION pour les afficher dans l'editeur de pension--------------------
-		try {
-		sql = "call getPension(1);";
-		Class.forName("com.mysql.jdbc.Driver");
-		Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
-		Statement stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery(sql);
-		Tools.print(
-		"____________________________________________[Get info de la pension]_________________________________________________");
-		if (rs.next()) {
-		Tools.print("requéte:  "+sql+" =  "+rs.getString(1) + "|" + rs.getString(2) + "|" + rs.getString(3) + "|" + rs.getString(4)+ "|");
-		
-		pensionVille = rs.getString(1);
-		pensionAdresse = rs.getString(2);
-		pensionTelephone = rs.getString(3);
-		pensionResponsable = rs.getString(4);
-		
-		} else {
-		}
-		} catch (Exception e1) {
-		Tools.print("" + e1);
-		}
-		
-		Tools.print(
-		"_____________________________________________________________________________________________________________________");
-		
-		try {
-		sql = "call getParametres(1);";
-		Class.forName("com.mysql.jdbc.Driver");
-		Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
-		Statement stmt = con.createStatement();
-		ResultSet rs = stmt.executeQuery(sql);
-		Tools.print(
-		"____________________________________________[Get parametres de la pension]_________________________________________________");
-		
-		if (rs.next()) {
-		Tools.print("requéte:  "+sql+" =  "+rs.getString(1) + "|" + rs.getString(2) + "|" + rs.getString(3) + "|" + rs.getString(4)
-		+ "|" + rs.getString(5) + "|" + rs.getString(6) + "|");
-		
-		pensionNom = rs.getString(1);
-		pensionAdresseSiegeSocial = rs.getString(2);
-		pensionNomDirigeant = rs.getString(3);
-		pensionAdresseLogo = rs.getString(4);
-		pensionPrixVaccin = rs.getString(5);
-		pensionPrixVermifuge = rs.getString(6);
-		} else {
-		}
-		} catch (Exception e11) {
-		Tools.print("" + e11);
-		}
-		;
-		Tools.print(
-		"_____________________________________________________________________________________________________________________");
-		Tools.print("");
-		
-		Tools.print("---------   ajout de la table");
-		tablePension.setModel(new DefaultTableModel(new Object[][] { 
-		{ "nom de la pension", pensionNom },
-		{ "responsable", pensionResponsable }, 
-		{ "ville", pensionVille }, 
-		{ "adresse", pensionAdresse },
-		{ "telephone", pensionTelephone }, 
-		{ "nom dirigeant", pensionNomDirigeant },
-		{ "adresse siege social", pensionAdresseSiegeSocial }, 
-		{ "lien vers le logo", pensionAdresseLogo },
-		{ "prix vaccin", pensionPrixVaccin }, 
-		{ "prix vermifuge", pensionPrixVermifuge }, 
-		},
-		new String[] { "nom", "valeur" }));
-		tablePension.getColumnModel().getColumn(0).setPreferredWidth(181);
-		tablePension.getColumnModel().getColumn(1).setPreferredWidth(272);
-		tablePension.setBounds(12, 126, 392, 160);
-		
-				
-				CardInfo_.setVisible(true);
-				__CardSelection__.setVisible(false);
+
+				remplirGestionPensionParSql(__CardSelection__);
 			}
+
+			
 		});
 		btnGP.setForeground(new Color(0, 0, 0));
 		btnGP.setBackground(new Color(176, 224, 230));
@@ -270,12 +217,12 @@ public class Design extends JFrame {
 		btnGB.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));/* BOUTON BOX */
 		btnGB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tableModel.getDataVector().removeAllElements();
-				tableModel.fireTableDataChanged();
 				CardBox_.setVisible(true);
 				__CardSelection__.setVisible(false);
+				
+				sqlBoxVersTable(tableModel);
 
-				Tools.print("");
+				/*Tools.print("");
 				Tools.print("|______________________SQL_____________________|");
 				Tools.print("|info sql: host=" + host);
 				Tools.print("|user=" + bddUtilisateur + " mdp= " + bddMdp);
@@ -294,7 +241,6 @@ public class Design extends JFrame {
 					stmt = con.createStatement();
 					rs = stmt.executeQuery(sql);
 					while (rs.next()) {
-						/* nbBox=rs.getInt(1); */
 						Tools.print("execution sql: " + sql);
 						Tools.print("nb de box de cette pension: " + rs.getInt(1));
 						nbBox = rs.getInt(1);
@@ -310,10 +256,9 @@ public class Design extends JFrame {
 				Tools.print("");
 				Tools.print("|--------------sql des box n: " + uIdPension + "--------------|");
 
-				try { /* \/ <- changer options SQL ici */
+				try {
 
 					Tools.print("requete: " + sql);
-					/* infoNomU.setText(ulogin.getText()); */
 					Class.forName("com.mysql.jdbc.Driver");
 					con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
 					stmt = con.createStatement();
@@ -325,8 +270,7 @@ public class Design extends JFrame {
 
 						tableModel.addRow(
 								new Object[] { rs.getString(1), rs.getFloat(2), rs.getString(3), rs.getString(4), });
-						Tools.print("id=" + rs.getString(1) + " taille= " + rs.getFloat(2) + " gardiennage= "
-								+ rs.getString(3) + " prix= " + rs.getString(4));
+						Tools.print("id=" + rs.getString(1) + " taille= " + rs.getFloat(2) + " gardiennage= "+ rs.getString(3) + " prix= " + rs.getString(4));
 						Tools.print("");
 
 					}
@@ -338,8 +282,10 @@ public class Design extends JFrame {
 				Tools.print("");
 				Tools.print("|---------------------------------------------|");
 				Tools.print("");
-				Tools.print("");
+				Tools.print("");*/
 			}
+
+
 		});
 
 		btnGB.setForeground(Color.BLACK);
@@ -405,7 +351,7 @@ public class Design extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				
 				try { /* \/ <- changer options SQL ici */
-					sql = "call getCon('" + ulogin.getText() + "','" + umdp.getText() + "');";
+					sql = "call getCon('" + ulogin.getText() + "','" + String.valueOf(umdp.getPassword()) + "');";
 
 					Class.forName("com.mysql.jdbc.Driver");
 					Tools.print("Statement stmt=con.createStatement();" + "host = " + host + "SQL utilisateur = "
@@ -453,29 +399,9 @@ public class Design extends JFrame {
 		JButton btnNewButton = new JButton("enregistrer les informations");
 		btnNewButton.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {																	///-----------------------------------------ENVOYER les donnée saisies dans PENSION				BOUTON ENREGISTRER PENSION
+			public void actionPerformed(ActionEvent arg0) {
 				
-				sql = "call updateParametres('"+tablePension.getValueAt(0,1).toString()+"','"+tablePension.getValueAt(6,1).toString()+"','"+tablePension.getValueAt(5,1).toString()+"','"+tablePension.getValueAt(7,1).toString()+"','"+tablePension.getValueAt(8,1).toString()+"','"+tablePension.getValueAt(9,1).toString()+"','"+uIdPension+"');";
-				Tools.print(sql);
-				
-				
-				Tools.print("enregistrer");
-				try {
-					Class.forName("com.mysql.jdbc.Driver");
-					Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
-					Statement stmt = con.createStatement();
-					stmt.executeQuery(sql);
-					Tools.print(
-							"____________________________________________[Update info de la pension]_________________________________________________");
-						Tools.print("requéte:  "+sql);
-
-					} catch (Exception e1) {
-					Tools.print("[SQL ALERT] " + e1);
-				}
-
-				Tools.print(
-						"_____________________________________________________________________________________________________________________");
-				Tools.print("");
+				envoyerDonnéeSaisiesPension();
 
 			}
 		});
@@ -493,12 +419,7 @@ public class Design extends JFrame {
 		});
 
 		pensionVersSelection.setBounds(315, 11, 89, 23);
-		CardInfo_.add(pensionVersSelection);
-
-		tablePension = new JTable();
-		tablePension.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		tablePension.setBackground(new Color(224, 255, 255));
-		tablePension.setFont(new Font("Dialog", Font.PLAIN, 15)); 																					
+		CardInfo_.add(pensionVersSelection);																				
 
 		JLabel decoPension = new JLabel("N I F T Y");
 		decoPension.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
@@ -508,6 +429,26 @@ public class Design extends JFrame {
 		decoPension.setFont(new Font("Dialog", Font.BOLD, 20));
 		decoPension.setBounds(12, 11, 390, 78);
 		CardInfo_.add(decoPension);
+		
+		tablePension = new JTable();
+
+			tablePension.setModel(new DefaultTableModel(new Object[][] { 
+				{ "nom de la pension", null },
+				{ "responsable", null }, 
+				{ "ville", null }, 
+				{ "adresse", null },
+				{ "telephone", null }, 
+				{ "nom dirigeant", null },
+				{ "adresse siege social", null }, 
+				{ "lien vers le logo", null },
+				{ "prix vaccin", null }, 
+				{ "prix vermifuge", null }, 
+				},
+				new String[] { "nom", "valeur" }
+		));
+		tablePension.setBackground(new Color(175, 238, 238));
+		tablePension.setBounds(12, 101, 392, 241);
+		CardInfo_.add(tablePension);
 		CardInfo_.setVisible(false);
 
 		contientTout.add(CardBox_, "name_278764592863900");
@@ -523,48 +464,44 @@ public class Design extends JFrame {
 		enegistrerBox.setBounds(12, 367, 89, 22);
 		enegistrerBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-																												/// ------------------------------recupÃ©ration des box creation d'un objet
-
-				ArrayList<Box> boxList = new ArrayList<>();
-				Tools.print("nbBox=" + nbBox);
-				for (int i = 0; i < nbBox; i++) {
+																	/// ------------------------------recupÃ©ration des box creation d'un objet
+				Tools.print("enregistrer");
+				ArrayList<Box> tempBoxes = new ArrayList<>();
+				
+				for (int i = 0; i < boxes.size(); i++) {
+					
 					int idTab = Integer.parseInt(table.getValueAt((i), 0).toString());
 					Float taille = Float.parseFloat(table.getValueAt((i), 1).toString());
 					String typeTab = table.getValueAt(i, 2).toString();
-					Float tailleTab = Float.parseFloat(table.getValueAt(i, 3).toString());
+					Float prixTab = Float.parseFloat(table.getValueAt(i, 3).toString());
+					
+					Box tempBox = new Box(idTab, taille, typeTab, prixTab);
+					
+					if(!boxes.get(i).equals(tempBox)) {
+						tempBoxes.add(tempBox);
+						Tools.print("box modifiée: "+ i);
+					}else {Tools.print("box non modifiée: "+ i);}
+					
+					BoxDAO boxDAO = new BoxDAO();
+					try {
+						boxDAO.updateList(tempBoxes);
+					} catch (SQLException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
 
-					boxList.add(new Box(idTab, taille.toString(), typeTab, tailleTab));
+					///boxList.add(new Box(idTab, taille.toString(), typeTab, prixTab));
 
 					Tools.print("");
 					Tools.print("______________ligne de la box n: " + i + "____________________");
 					Tools.print("| id | taille | type           |tarif|");
-					Tools.print("| " + idTab + " | " + taille.toString() + "    |" + typeTab.toString() + "| "
-							+ tailleTab.toString() + " |");
+					Tools.print("| " + idTab + " | " + taille.toString() + "    |" + typeTab.toString() + "| "+ prixTab.toString() + " |");
 
-					sql = "CALL alterBox (" + idTab + ", " + taille + ",'" + typeTab + "' , " + tailleTab + ")"; // --------------------objet
-																													// part
-																													// vers
-																													// SQL
-
-					Connection con;
-					try {
-						con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
-
-						PreparedStatement preparedStatement = con.prepareStatement(sql);
-						/* preparedStatement.setInt(1, id); */
-						/* ResultSet resultSet = */
-						preparedStatement.executeQuery();
-						Tools.print("requÃ©te:  " + sql);
-					} catch (SQLException e1) {
-						Tools.print("ERREUR ! dans la requÃ©te:  " + sql);
-						e1.printStackTrace();
-					}
-
-				}
 				Tools.print("______________________________________________________");
-
+				
 			}
-		});
+				Tools.print("_");
+				}});
 
 		CardBox_.add(enegistrerBox);
 
@@ -577,21 +514,22 @@ public class Design extends JFrame {
 		ajouterBox.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		ajouterBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { // -----------------------AddBox
+				
 
-				sql = "call addBox (oLibelle varchar(30), oIdPension int, oSuperficie float);";
-				sql = "call addBox ('" + nBoxType.getText() + "', '" + uIdPension + "', '" + nBoxTaille.getText()
-						+ "');";
-
-				Connection con;
+				
 				try {
-					con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
-					nbBox++;
-					Tools.print("requÃ©te:  " + sql);
-				} catch (SQLException e1) {
-					Tools.print("ERREUR ! dans la requÃ©te:  " + sql);
+					boxDAO.add(new Box(nBoxType.getText(), uIdPension, Float.parseFloat(nBoxTaille.getText())));
+					sqlBoxVersTable(tableModel);
+				} catch (NumberFormatException e1) {
+					// TODO Auto-generated catch block
 					e1.printStackTrace();
+					Tools.print("float exeption");
+				} catch (SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					Tools.print("sql exeption");
 				}
-
+				
 			}
 		});
 
@@ -608,13 +546,8 @@ public class Design extends JFrame {
 
 			}
 		});
-		/*
-		 * AUTO CON !!!
-		 * -----------------------------------------------------------------------------
-		 * --------------------------------------------------------------!!!!!!!!!!!!!-
-		 */
-		ulogin.setText("remi3");
-		umdp.setText("1234");
+
+		autoCon();
 		
 		JLabel laMiseAuVert = new JLabel("Outil de gestion La mise au vert");
 		laMiseAuVert.setHorizontalAlignment(SwingConstants.CENTER);
@@ -628,16 +561,9 @@ public class Design extends JFrame {
 		JLabel deco = new JLabel("");
 		deco.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		deco.setOpaque(true);
-		deco.setBackground(SystemColor.menu);
+		deco.setBackground(SystemColor.controlHighlight);
 		deco.setBounds(10, 102, 394, 80);
 		CardLogin_.add(deco);
-		Tools.print("|AUTO CON ACTIF !!!|");
-
-		/*
-		 * AUTO CON !!!
-		 * -----------------------------------------------------------------------------
-		 * --------------------------------------------------------------!!!!!!!!!!!!!-
-		 */
 
 		retourGestionBox.setBounds(316, 6, 89, 23);
 		CardBox_.add(retourGestionBox);
@@ -664,5 +590,122 @@ public class Design extends JFrame {
 		JLabel lblType = new JLabel("type");
 		lblType.setBounds(132, 351, 70, 15);
 		CardBox_.add(lblType);
+		///--------------------------------------------------------------------------------------methods \/------------------------------------------------------------------------------------------------------------
+	}
+
+	private void autoCon() {
+		ulogin.setText("remi3");
+		umdp.setText("1234");
+		Tools.print("|AUTO CON ACTIF !!!|");
+	}
+	private void remplirGestionPensionParSql(JPanel __CardSelection__) {
+		// --------------------------------prend les INFO DE LA PENSION pour les
+		// afficher dans l'editeur de pension--------------------
+		try {
+			sql = "call getPension(1);";
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			Tools.print(
+					"____________________________________________[Get info de la pension]_________________________________________________");
+			if (rs.next()) {
+				Tools.print("requï¿½te:  " + sql + " =  " + rs.getString(1) + "|" + rs.getString(2) + "|"
+						+ rs.getString(3) + "|" + rs.getString(4) + "|");
+
+				pensionVille = rs.getString(1);
+				pensionAdresse = rs.getString(2);
+				pensionTelephone = rs.getString(3);
+				pensionResponsable = rs.getString(4);
+
+			} else {
+			}
+		} catch (Exception e1) {
+			Tools.print("" + e1);
+		}
+
+		Tools.print(
+				"_____________________________________________________________________________________________________________________");
+
+		try {
+			sql = "call getParametres(1);";
+			Class.forName("com.mysql.jdbc.Driver");
+			Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
+			Statement stmt = con.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			Tools.print(
+					"____________________________________________[Get parametres de la pension]_________________________________________________");
+
+			if (rs.next()) {
+				Tools.print("requï¿½te:  " + sql + " =  " + rs.getString(1) + "|" + rs.getString(2) + "|"
+						+ rs.getString(3) + "|" + rs.getString(4) + "|" + rs.getString(5) + "|"
+						+ rs.getString(6) + "|");
+
+				pensionNom = rs.getString(1);
+				pensionAdresseSiegeSocial = rs.getString(2);
+				pensionNomDirigeant = rs.getString(3);
+				pensionAdresseLogo = rs.getString(4);
+				pensionPrixVaccin = rs.getString(5);
+				pensionPrixVermifuge = rs.getString(6);
+			} else {
+			}
+		} catch (Exception e11) {
+			Tools.print("" + e11);
+		}
+		;
+		Tools.print(
+				"_____________________________________________________________________________________________________________________");
+		Tools.print("");
+
+		Tools.print("---------   ajout de la table");
+		/// PARTIE COUPÃ‰E ICI ENTREE DANS LE tablePensionU
+
+		CardInfo_.setVisible(true);
+		__CardSelection__.setVisible(false);
+	}
+
+	private void envoyerDonnéeSaisiesPension() {
+		///-----------------------------------------ENVOYER les donnï¿½e saisies dans PENSION				BOUTON ENREGISTRER PENSION
+			
+			sql = "call updateParametres('"+tablePension.getValueAt(0,1).toString()+"','"+tablePension.getValueAt(6,1).toString()+"','"+tablePension.getValueAt(5,1).toString()+"','"+tablePension.getValueAt(7,1).toString()+"','"+tablePension.getValueAt(8,1).toString()+"','"+tablePension.getValueAt(9,1).toString()+"','"+uIdPension+"');";
+			Tools.print(sql);
+			
+			
+			Tools.print("enregistrer");
+			try {
+				Class.forName("com.mysql.jdbc.Driver");
+				Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
+				Statement stmt = con.createStatement();
+				stmt.executeQuery(sql);
+				Tools.print(
+						"____________________________________________[Update info de la pension]_________________________________________________");
+					Tools.print("requï¿½te:  "+sql);
+
+				} catch (Exception e1) {
+				Tools.print("[envoyerDonnéeSaisiesPension]: [SQL ALERT] " + e1);
+			}
+
+			Tools.print(
+					"_____________________________________________________________________________________________________________________");
+			Tools.print("");
+	}
+	
+	private void sqlBoxVersTable(DefaultTableModel tableModel) {
+		tableModel.getDataVector().removeAllElements();
+		tableModel.fireTableDataChanged();
+		
+		
+		BoxDAO boxDAO = new BoxDAO();
+		
+		try {
+			boxes = boxDAO.getAll(uIdPension);
+			
+			for (Box box : boxes) {
+				tableModel.addRow(new Object[] { box.getId(), box.getSuperficie(), box.getLibelle(), box.getTarif()});
+			}
+		} catch (SQLException e1) {
+			System.err.print(e1.getMessage());
+			e1.printStackTrace();
+		}
 	}
 }
