@@ -27,6 +27,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
+
 import DAO.BoxDAO;
 import model.Box;
 
@@ -56,7 +57,7 @@ public class Design extends JFrame {
 
 	String bddUtilisateur = "prof";
 	String bddMdp = "prof_1234";
-	String host = "jdbc:mysql://192.168.137.215:3306/vert"; /* 3306 ou 8080 */
+	String host = "jdbc:mysql://192.168.1.49:3306/vert"; /* 3306 ou 8080 */
 	/* 3306 ou 8080 */
 	String sql;
 	int uIdPension = 0;
@@ -99,7 +100,7 @@ public class Design extends JFrame {
 	 * Create the frame.
 	 */
 	public Design() {
-
+		System.out.print("test");
 		setForeground(new Color(255, 215, 0));
 		setBackground(Color.WHITE);
 
@@ -178,11 +179,7 @@ public class Design extends JFrame {
 		boutonDeconnexion.setBackground(new Color(255, 102, 102));
 		boutonDeconnexion.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				__CardSelection__.setVisible(false);
-				CardLogin_.setVisible(true);
-				ulogin.setText("");
-				umdp.setText("");
-
+				deconnectionUtilisateur(__CardSelection__);
 			}
 		});
 		boutonDeconnexion.setBounds(214, 86, 190, 145);
@@ -201,7 +198,6 @@ public class Design extends JFrame {
 		btnGP.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));/* BOUTON GESTION PENSION */
 		btnGP.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				remplirGestionPensionParSql(__CardSelection__);
 			}
 
@@ -219,70 +215,7 @@ public class Design extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				CardBox_.setVisible(true);
 				__CardSelection__.setVisible(false);
-				
 				sqlBoxVersTable(tableModel);
-
-				/*Tools.print("");
-				Tools.print("|______________________SQL_____________________|");
-				Tools.print("|info sql: host=" + host);
-				Tools.print("|user=" + bddUtilisateur + " mdp= " + bddMdp);
-				Tools.print("|______________________________________________|");
-				Tools.print("");
-				Tools.print("");
-
-				String sql;
-				sql = "call getBoxNombre(" + uIdPension + ");";
-				Connection con;
-				Statement stmt;
-				ResultSet rs;
-
-				try {
-					con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
-					stmt = con.createStatement();
-					rs = stmt.executeQuery(sql);
-					while (rs.next()) {
-						Tools.print("execution sql: " + sql);
-						Tools.print("nb de box de cette pension: " + rs.getInt(1));
-						nbBox = rs.getInt(1);
-					}
-
-				} catch (SQLException e2) {
-					Tools.print("ERREUR SQL : " + e2);
-					e2.printStackTrace();
-				}
-
-				sql = "call getBox(" + uIdPension + ");";
-
-				Tools.print("");
-				Tools.print("|--------------sql des box n: " + uIdPension + "--------------|");
-
-				try {
-
-					Tools.print("requete: " + sql);
-					Class.forName("com.mysql.jdbc.Driver");
-					con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
-					stmt = con.createStatement();
-					rs = stmt.executeQuery(sql);
-					Tools.print("");
-					while (rs.next()) {
-
-						Tools.print("----ajout d'une ligne----|");
-
-						tableModel.addRow(
-								new Object[] { rs.getString(1), rs.getFloat(2), rs.getString(3), rs.getString(4), });
-						Tools.print("id=" + rs.getString(1) + " taille= " + rs.getFloat(2) + " gardiennage= "+ rs.getString(3) + " prix= " + rs.getString(4));
-						Tools.print("");
-
-					}
-					Tools.print("-------------------------|");
-
-				} catch (Exception e1) {
-				}
-				;
-				Tools.print("");
-				Tools.print("|---------------------------------------------|");
-				Tools.print("");
-				Tools.print("");*/
 			}
 
 
@@ -465,7 +398,9 @@ public class Design extends JFrame {
 		enegistrerBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 																	/// ------------------------------recup√©ration des box creation d'un objet
-				Tools.print("enregistrer");
+				Tools.print("enregistrement...");
+				Tools.print("");
+
 				ArrayList<Box> tempBoxes = new ArrayList<>();
 				
 				for (int i = 0; i < boxes.size(); i++) {
@@ -476,11 +411,13 @@ public class Design extends JFrame {
 					Float prixTab = Float.parseFloat(table.getValueAt(i, 3).toString());
 					
 					Box tempBox = new Box(idTab, taille, typeTab, prixTab);
-					
+					Tools.print("______________ligne de la box n: " + i + "____________________");
+					Tools.print("| id | taille | type           |tarif|");
+					Tools.print("| " + idTab + " | " + taille.toString() + "    |" + typeTab.toString() + "| "+ prixTab.toString() + " |");
 					if(!boxes.get(i).equals(tempBox)) {
 						tempBoxes.add(tempBox);
-						Tools.print("box modifiÈe: "+ i);
-					}else {Tools.print("box non modifiÈe: "+ i);}
+						Tools.print("|  [box modifiÈe]");
+					}else {Tools.print("|  box non modifiÈe");}
 					
 					BoxDAO boxDAO = new BoxDAO();
 					try {
@@ -489,18 +426,10 @@ public class Design extends JFrame {
 						// TODO Auto-generated catch block
 						e2.printStackTrace();
 					}
-
-					///boxList.add(new Box(idTab, taille.toString(), typeTab, prixTab));
-
-					Tools.print("");
-					Tools.print("______________ligne de la box n: " + i + "____________________");
-					Tools.print("| id | taille | type           |tarif|");
-					Tools.print("| " + idTab + " | " + taille.toString() + "    |" + typeTab.toString() + "| "+ prixTab.toString() + " |");
-
 				Tools.print("______________________________________________________");
 				
 			}
-				Tools.print("_");
+				Tools.print("enregistrement tÈrminÈ ");
 				}});
 
 		CardBox_.add(enegistrerBox);
@@ -514,22 +443,7 @@ public class Design extends JFrame {
 		ajouterBox.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		ajouterBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { // -----------------------AddBox
-				
-
-				
-				try {
-					boxDAO.add(new Box(nBoxType.getText(), uIdPension, Float.parseFloat(nBoxTaille.getText())));
-					sqlBoxVersTable(tableModel);
-				} catch (NumberFormatException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					Tools.print("float exeption");
-				} catch (SQLException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-					Tools.print("sql exeption");
-				}
-				
+				addBoxAuTableau(tableModel);
 			}
 		});
 
@@ -540,10 +454,7 @@ public class Design extends JFrame {
 		retourGestionBox.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		retourGestionBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-				CardBox_.setVisible(false);
-				__CardSelection__.setVisible(true);
-
+				fermerCardBox(__CardSelection__);
 			}
 		});
 
@@ -590,7 +501,7 @@ public class Design extends JFrame {
 		JLabel lblType = new JLabel("type");
 		lblType.setBounds(132, 351, 70, 15);
 		CardBox_.add(lblType);
-		///--------------------------------------------------------------------------------------methods \/------------------------------------------------------------------------------------------------------------
+		///---------------------------------------------------------------------------------------------methods \/------------------------------------------------------------------------------------------------------------
 	}
 
 	private void autoCon() {
@@ -612,7 +523,6 @@ public class Design extends JFrame {
 			if (rs.next()) {
 				Tools.print("requÔøΩte:  " + sql + " =  " + rs.getString(1) + "|" + rs.getString(2) + "|"
 						+ rs.getString(3) + "|" + rs.getString(4) + "|");
-
 				pensionVille = rs.getString(1);
 				pensionAdresse = rs.getString(2);
 				pensionTelephone = rs.getString(3);
@@ -677,23 +587,20 @@ public class Design extends JFrame {
 				Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
 				Statement stmt = con.createStatement();
 				stmt.executeQuery(sql);
-				Tools.print(
-						"____________________________________________[Update info de la pension]_________________________________________________");
+				Tools.print("____________________________________________[Update info de la pension]_________________________________________________");
 					Tools.print("requÔøΩte:  "+sql);
 
 				} catch (Exception e1) {
 				Tools.print("[envoyerDonnÈeSaisiesPension]: [SQL ALERT] " + e1);
 			}
 
-			Tools.print(
-					"_____________________________________________________________________________________________________________________");
+			Tools.print("_____________________________________________________________________________________________________________________");
 			Tools.print("");
 	}
 	
 	private void sqlBoxVersTable(DefaultTableModel tableModel) {
 		tableModel.getDataVector().removeAllElements();
 		tableModel.fireTableDataChanged();
-		
 		
 		BoxDAO boxDAO = new BoxDAO();
 		
@@ -706,6 +613,33 @@ public class Design extends JFrame {
 		} catch (SQLException e1) {
 			System.err.print(e1.getMessage());
 			e1.printStackTrace();
+		}
+	}
+
+	private void deconnectionUtilisateur(JPanel __CardSelection__) {
+		__CardSelection__.setVisible(false);
+		CardLogin_.setVisible(true);
+		ulogin.setText("");
+		umdp.setText("");
+	}
+
+	private void fermerCardBox(JPanel __CardSelection__) {
+		CardBox_.setVisible(false);
+		__CardSelection__.setVisible(true);
+	}
+
+	private void addBoxAuTableau(DefaultTableModel tableModel) {
+		try {
+			boxDAO.add(new Box(nBoxType.getText(), uIdPension, Float.parseFloat(nBoxTaille.getText())));
+			sqlBoxVersTable(tableModel);
+		} catch (NumberFormatException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			Tools.print("float exeption");
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			Tools.print("sql exeption");
 		}
 	}
 }
