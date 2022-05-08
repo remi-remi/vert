@@ -12,6 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -30,6 +32,7 @@ import javax.swing.table.DefaultTableModel;
 
 import DAO.BoxDAO;
 import model.Box;
+import utils.DbConnection;
 
 /*https://www.tutorialsfield.com/how-to-connect-mysql-database-in-java-using-eclipse/*/
 
@@ -100,6 +103,8 @@ public class Design extends JFrame {
 	 * Create the frame.
 	 */
 	public Design() {
+		List<String> list1 = Arrays.asList("id","nom","ville");
+		DbConnection.ExecutionSql("procedure",list1);
 		System.out.print("test");
 		setForeground(new Color(255, 215, 0));
 		setBackground(Color.WHITE);
@@ -334,7 +339,7 @@ public class Design extends JFrame {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
-				envoyerDonnéeSaisiesPension();
+				envoyerDonneeSaisiesPension();
 
 			}
 		});
@@ -397,39 +402,7 @@ public class Design extends JFrame {
 		enegistrerBox.setBounds(12, 367, 89, 22);
 		enegistrerBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-																	/// ------------------------------recupÃ©ration des box creation d'un objet
-				Tools.print("enregistrement...");
-				Tools.print("");
-
-				ArrayList<Box> tempBoxes = new ArrayList<>();
-				
-				for (int i = 0; i < boxes.size(); i++) {
-					
-					int idTab = Integer.parseInt(table.getValueAt((i), 0).toString());
-					Float taille = Float.parseFloat(table.getValueAt((i), 1).toString());
-					String typeTab = table.getValueAt(i, 2).toString();
-					Float prixTab = Float.parseFloat(table.getValueAt(i, 3).toString());
-					
-					Box tempBox = new Box(idTab, taille, typeTab, prixTab);
-					Tools.print("______________ligne de la box n: " + i + "____________________");
-					Tools.print("| id | taille | type           |tarif|");
-					Tools.print("| " + idTab + " | " + taille.toString() + "    |" + typeTab.toString() + "| "+ prixTab.toString() + " |");
-					if(!boxes.get(i).equals(tempBox)) {
-						tempBoxes.add(tempBox);
-						Tools.print("|  [box modifiée]");
-					}else {Tools.print("|  box non modifiée");}
-					
-					BoxDAO boxDAO = new BoxDAO();
-					try {
-						boxDAO.updateList(tempBoxes);
-					} catch (SQLException e2) {
-						// TODO Auto-generated catch block
-						e2.printStackTrace();
-					}
-				Tools.print("______________________________________________________");
-				
-			}
-				Tools.print("enregistrement términé ");
+				tableauVersObjetBox(table);
 				}});
 
 		CardBox_.add(enegistrerBox);
@@ -574,7 +547,7 @@ public class Design extends JFrame {
 		__CardSelection__.setVisible(false);
 	}
 
-	private void envoyerDonnéeSaisiesPension() {
+	private void envoyerDonneeSaisiesPension() {
 		///-----------------------------------------ENVOYER les donnï¿½e saisies dans PENSION				BOUTON ENREGISTRER PENSION
 			
 			sql = "call updateParametres('"+tablePension.getValueAt(0,1).toString()+"','"+tablePension.getValueAt(6,1).toString()+"','"+tablePension.getValueAt(5,1).toString()+"','"+tablePension.getValueAt(7,1).toString()+"','"+tablePension.getValueAt(8,1).toString()+"','"+tablePension.getValueAt(9,1).toString()+"','"+uIdPension+"');";
@@ -591,7 +564,7 @@ public class Design extends JFrame {
 					Tools.print("requï¿½te:  "+sql);
 
 				} catch (Exception e1) {
-				Tools.print("[envoyerDonnéeSaisiesPension]: [SQL ALERT] " + e1);
+				Tools.print("[envoyerDonnï¿½eSaisiesPension]: [SQL ALERT] " + e1);
 			}
 
 			Tools.print("_____________________________________________________________________________________________________________________");
@@ -641,5 +614,41 @@ public class Design extends JFrame {
 			e1.printStackTrace();
 			Tools.print("sql exeption");
 		}
+	}
+
+	private void tableauVersObjetBox(JTable table) {
+		/// ------------------------------recupÃ©ration des box creation d'un objet
+Tools.print("enregistrement...");
+Tools.print("");
+
+ArrayList<Box> tempBoxes = new ArrayList<>();
+
+for (int i = 0; i < boxes.size(); i++) {
+
+int idTab = Integer.parseInt(table.getValueAt((i), 0).toString());
+Float taille = Float.parseFloat(table.getValueAt((i), 1).toString());
+String typeTab = table.getValueAt(i, 2).toString();
+Float prixTab = Float.parseFloat(table.getValueAt(i, 3).toString());
+
+Box tempBox = new Box(idTab, taille, typeTab, prixTab);
+Tools.print("______________ligne de la box n: " + i + "____________________");
+Tools.print("| id | taille | type           |tarif|");
+Tools.print("| " + idTab + " | " + taille.toString() + "    |" + typeTab.toString() + "| "+ prixTab.toString() + " |");
+if(!boxes.get(i).equals(tempBox)) {
+tempBoxes.add(tempBox);
+Tools.print("|  [box modifiï¿½e]");
+}else {Tools.print("|  box non modifiï¿½e");}
+
+BoxDAO boxDAO = new BoxDAO();
+try {
+boxDAO.updateList(tempBoxes);
+} catch (SQLException e2) {
+// TODO Auto-generated catch block
+e2.printStackTrace();
+}
+Tools.print("______________________________________________________");
+
+}
+Tools.print("enregistrement tï¿½rminï¿½ ");
 	}
 }
