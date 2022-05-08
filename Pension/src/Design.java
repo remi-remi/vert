@@ -29,15 +29,16 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-
-import DAO.BoxDAO;
+import DAO.*;
 import model.Box;
 import utils.DbConnection;
+import utils.Tools;
+
+import static utils.Tools.*;
 
 /*https://www.tutorialsfield.com/how-to-connect-mysql-database-in-java-using-eclipse/*/
 
 public class Design extends JFrame {
-
 	/**
 	 * 
 	 */
@@ -67,19 +68,9 @@ public class Design extends JFrame {
 	public int nbBox = 0;
 	private JTable tablePension;
 
-	/// var pension
-	String pensionVille = null;
-	String pensionAdresse = null;
-	String pensionTelephone = null;
-	String pensionResponsable = null;
-
-	String pensionNom = null;
-	String pensionAdresseSiegeSocial = null;
-	String pensionNomDirigeant = null;
-	String pensionAdresseLogo = null;
-	String pensionPrixVaccin = null;
-	String pensionPrixVermifuge = null;
+ /// une dao est un objet qui contient des info venant de sql ou allant vers sql
 	BoxDAO boxDAO = new BoxDAO();
+	PensionDAO pensionDAO = new PensionDAO();
 
     ///___________________________________
 	/**
@@ -103,9 +94,10 @@ public class Design extends JFrame {
 	 * Create the frame.
 	 */
 	public Design() {
-		List<String> list1 = Arrays.asList("id","nom","ville");
+
+		/*List<String> list1 = Arrays.asList("id","nom","ville");
 		DbConnection.ExecutionSql("procedure",list1);
-		System.out.print("test");
+		System.out.print("test");*/
 		setForeground(new Color(255, 215, 0));
 		setBackground(Color.WHITE);
 
@@ -135,17 +127,17 @@ public class Design extends JFrame {
 		tablePension.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		tablePension.setBackground(new Color(224, 255, 255));
 		tablePension.setFont(new Font("Dialog", Font.PLAIN, 15)); 	
-		tablePension.setModel(new DefaultTableModel(new Object[][] { 
+		tablePension.setModel(new DefaultTableModel(new Object[][] {
 			{ "nom de la pension", null },
-			{ "responsable", null }, 
-			{ "ville", null }, 
+			{ "responsable", null },
+			{ "ville", null },
 			{ "adresse", null },
-			{ "telephone", null }, 
+			{ "telephone", null },
 			{ "nom dirigeant", null },
-			{ "adresse siege social", null }, 
+			{ "adresse siege social", null },
 			{ "lien vers le logo", null },
-			{ "prix vaccin", null }, 
-			{ "prix vermifuge", null }, 
+			{ "prix vaccin", null },
+			{ "prix vermifuge", null },
 			},
 			new String[] { "nom", "valeur" }));
 			tablePension.getColumnModel().getColumn(0).setPreferredWidth(181);
@@ -184,7 +176,7 @@ public class Design extends JFrame {
 		boutonDeconnexion.setBackground(new Color(255, 102, 102));
 		boutonDeconnexion.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				deconnectionUtilisateur(__CardSelection__);
+			deconnectionUtilisateur(__CardSelection__);
 			}
 		});
 		boutonDeconnexion.setBounds(214, 86, 190, 145);
@@ -203,7 +195,10 @@ public class Design extends JFrame {
 		btnGP.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));/* BOUTON GESTION PENSION */
 		btnGP.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				remplirGestionPensionParSql(__CardSelection__);
+			
+			pensionDAO.remplirGestionPensionParSql(__CardSelection__, uIdPension);
+			CardInfo_.setVisible(true);
+			__CardSelection__.setVisible(false);
 			}
 
 			
@@ -218,12 +213,9 @@ public class Design extends JFrame {
 		btnGB.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));/* BOUTON BOX */
 		btnGB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				CardBox_.setVisible(true);
-				__CardSelection__.setVisible(false);
+				ouvrirCardBox(__CardSelection__);
 				sqlBoxVersTable(tableModel);
 			}
-
-
 		});
 
 		btnGB.setForeground(Color.BLACK);
@@ -287,36 +279,7 @@ public class Design extends JFrame {
 		verif.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		verif.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				try { /* \/ <- changer options SQL ici */
-					sql = "call getCon('" + ulogin.getText() + "','" + String.valueOf(umdp.getPassword()) + "');";
-
-					Class.forName("com.mysql.jdbc.Driver");
-					Tools.print("Statement stmt=con.createStatement();" + "host = " + host + "SQL utilisateur = "
-							+ bddUtilisateur + "SQL mdp =" + bddMdp);
-					Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
-
-					Statement stmt = con.createStatement();
-					logintxt.setText(" L'identifiant ou le mot de passe est incorrect");
-
-					ResultSet rs = stmt.executeQuery(sql);
-
-					Tools.print("authentification de lutilisateur en sql=" + sql);
-
-					if (rs.next()) {
-						uIdPension = rs.getInt(11);
-						Tools.print("nb de la pension: " + uIdPension);
-						bienvenue.setText("Bienvenue " + ulogin.getText()); /* texte de l'écrant de séléction */
-						verif.setText("OK");
-						CardLogin_.setVisible(false);
-						__CardSelection__.setVisible(true);
-					} else {
-
-					}
-				} catch (Exception e1) {
-				}
-				;
-
+				verifInfoDeConnection(__CardSelection__, bienvenue, logintxt);
 			}
 		});
 		verif.setBounds(270, 115, 120, 55);
@@ -338,8 +301,7 @@ public class Design extends JFrame {
 		btnNewButton.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
-				envoyerDonneeSaisiesPension();
+			envoyerDonneeSaisiesPension();
 
 			}
 		});
@@ -350,8 +312,7 @@ public class Design extends JFrame {
 		pensionVersSelection.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		pensionVersSelection.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				CardInfo_.setVisible(false);
-				__CardSelection__.setVisible(true);
+				fermerCardInfo(__CardSelection__);
 
 			}
 		});
@@ -474,101 +435,36 @@ public class Design extends JFrame {
 		JLabel lblType = new JLabel("type");
 		lblType.setBounds(132, 351, 70, 15);
 		CardBox_.add(lblType);
-		///---------------------------------------------------------------------------------------------methods \/------------------------------------------------------------------------------------------------------------
 	}
-
+	///---------------------------------------------------------------------------------------------methods \/------------------------------------------------------------------------------------------------------------
 	private void autoCon() {
 		ulogin.setText("remi3");
 		umdp.setText("1234");
-		Tools.print("|AUTO CON ACTIF !!!|");
+		redcho("|AUTO CON ACTIF !!!|");
 	}
-	private void remplirGestionPensionParSql(JPanel __CardSelection__) {
-		// --------------------------------prend les INFO DE LA PENSION pour les
-		// afficher dans l'editeur de pension--------------------
-		try {
-			sql = "call getPension(1);";
-			Class.forName("com.mysql.jdbc.Driver");
-			Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
-			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery(sql);
-			Tools.print(
-					"____________________________________________[Get info de la pension]_________________________________________________");
-			if (rs.next()) {
-				Tools.print("requ�te:  " + sql + " =  " + rs.getString(1) + "|" + rs.getString(2) + "|"
-						+ rs.getString(3) + "|" + rs.getString(4) + "|");
-				pensionVille = rs.getString(1);
-				pensionAdresse = rs.getString(2);
-				pensionTelephone = rs.getString(3);
-				pensionResponsable = rs.getString(4);
 
-			} else {
-			}
-		} catch (Exception e1) {
-			Tools.print("" + e1);
-		}
-
-		Tools.print(
-				"_____________________________________________________________________________________________________________________");
-
-		try {
-			sql = "call getParametres(1);";
-			Class.forName("com.mysql.jdbc.Driver");
-			Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
-			Statement stmt = con.createStatement();
-			ResultSet rs = stmt.executeQuery(sql);
-			Tools.print(
-					"____________________________________________[Get parametres de la pension]_________________________________________________");
-
-			if (rs.next()) {
-				Tools.print("requ�te:  " + sql + " =  " + rs.getString(1) + "|" + rs.getString(2) + "|"
-						+ rs.getString(3) + "|" + rs.getString(4) + "|" + rs.getString(5) + "|"
-						+ rs.getString(6) + "|");
-
-				pensionNom = rs.getString(1);
-				pensionAdresseSiegeSocial = rs.getString(2);
-				pensionNomDirigeant = rs.getString(3);
-				pensionAdresseLogo = rs.getString(4);
-				pensionPrixVaccin = rs.getString(5);
-				pensionPrixVermifuge = rs.getString(6);
-			} else {
-			}
-		} catch (Exception e11) {
-			Tools.print("" + e11);
-		}
-		;
-		Tools.print(
-				"_____________________________________________________________________________________________________________________");
-		Tools.print("");
-
-		Tools.print("---------   ajout de la table");
-		/// PARTIE COUPÉE ICI ENTREE DANS LE tablePensionU
-
-		CardInfo_.setVisible(true);
-		__CardSelection__.setVisible(false);
-	}
 
 	private void envoyerDonneeSaisiesPension() {
 		///-----------------------------------------ENVOYER les donn�e saisies dans PENSION				BOUTON ENREGISTRER PENSION
 			
 			sql = "call updateParametres('"+tablePension.getValueAt(0,1).toString()+"','"+tablePension.getValueAt(6,1).toString()+"','"+tablePension.getValueAt(5,1).toString()+"','"+tablePension.getValueAt(7,1).toString()+"','"+tablePension.getValueAt(8,1).toString()+"','"+tablePension.getValueAt(9,1).toString()+"','"+uIdPension+"');";
-			Tools.print(sql);
+			echo(sql);
 			
 			
-			Tools.print("enregistrer");
+			echo("enregistrer");
 			try {
 				Class.forName("com.mysql.jdbc.Driver");
 				Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
 				Statement stmt = con.createStatement();
 				stmt.executeQuery(sql);
-				Tools.print("____________________________________________[Update info de la pension]_________________________________________________");
-					Tools.print("requ�te:  "+sql);
+				echo("____________________________________________[Update info de la pension]_________________________________________________");
+					echo("requete:  "+sql);
 
 				} catch (Exception e1) {
-				Tools.print("[envoyerDonn�eSaisiesPension]: [SQL ALERT] " + e1);
+				redcho("[SQL] |ALERT| envoyerDonneeSaisiesPension: " + e1);
 			}
-
-			Tools.print("_____________________________________________________________________________________________________________________");
-			Tools.print("");
+			echo("_____________________________________________________________________________________________________________________");
+			echo("");
 	}
 	
 	private void sqlBoxVersTable(DefaultTableModel tableModel) {
@@ -606,49 +502,96 @@ public class Design extends JFrame {
 			boxDAO.add(new Box(nBoxType.getText(), uIdPension, Float.parseFloat(nBoxTaille.getText())));
 			sqlBoxVersTable(tableModel);
 		} catch (NumberFormatException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
-			Tools.print("float exeption");
+			redcho("float exeption l'ors de l'ajout des Box au Tableau");
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
-			Tools.print("sql exeption");
+			redcho("[SQL] exeption l'ors de l'ajout des Box au Tableau");
 		}
 	}
 
 	private void tableauVersObjetBox(JTable table) {
-		/// ------------------------------recupération des box creation d'un objet
-Tools.print("enregistrement...");
-Tools.print("");
+		/// ------------------------------recuperation des box creation d'un objet
+		echo("[SQL] enregistrement...");
+		echo("");
 
-ArrayList<Box> tempBoxes = new ArrayList<>();
+		ArrayList<Box> tempBoxes = new ArrayList<>();
 
-for (int i = 0; i < boxes.size(); i++) {
+		for (int i = 0; i < boxes.size(); i++) {
 
-int idTab = Integer.parseInt(table.getValueAt((i), 0).toString());
-Float taille = Float.parseFloat(table.getValueAt((i), 1).toString());
-String typeTab = table.getValueAt(i, 2).toString();
-Float prixTab = Float.parseFloat(table.getValueAt(i, 3).toString());
+			int idTab = Integer.parseInt(table.getValueAt((i), 0).toString());
+			Float taille = Float.parseFloat(table.getValueAt((i), 1).toString());
+			String typeTab = table.getValueAt(i, 2).toString();
+			Float prixTab = Float.parseFloat(table.getValueAt(i, 3).toString());
 
-Box tempBox = new Box(idTab, taille, typeTab, prixTab);
-Tools.print("______________ligne de la box n: " + i + "____________________");
-Tools.print("| id | taille | type           |tarif|");
-Tools.print("| " + idTab + " | " + taille.toString() + "    |" + typeTab.toString() + "| "+ prixTab.toString() + " |");
-if(!boxes.get(i).equals(tempBox)) {
-tempBoxes.add(tempBox);
-Tools.print("|  [box modifi�e]");
-}else {Tools.print("|  box non modifi�e");}
+			Box tempBox = new Box(idTab, taille, typeTab, prixTab);
+			echo("______________ligne de la box n: " + i + "____________________");
+			echo("| id | taille | type           |tarif|");
+			echo("| " + idTab + " | " + taille.toString() + "    |" + typeTab.toString() + "| "+ prixTab.toString() + " |");
+			if(!boxes.get(i).equals(tempBox)) {
+				tempBoxes.add(tempBox);
+				echo("|  [box modifiee]");
+			}else {echo("|  box non modifiee");}
 
-BoxDAO boxDAO = new BoxDAO();
-try {
-boxDAO.updateList(tempBoxes);
-} catch (SQLException e2) {
-// TODO Auto-generated catch block
-e2.printStackTrace();
-}
-Tools.print("______________________________________________________");
+			BoxDAO boxDAO = new BoxDAO();
+			try {
+				boxDAO.updateList(tempBoxes);
+			} catch (SQLException e2) {
+				e2.printStackTrace();
+				redcho("[SQL] erreur enregistrement des box (class BoxDAO.updateList(temBoxes)");
+			}
+			echo("______________________________________________________");
 
-}
-Tools.print("enregistrement t�rmin� ");
+		}
+	echo("enregistrement termine ");
 	}
+
+	private void fermerCardInfo(JPanel __CardSelection__) {
+		CardInfo_.setVisible(false);
+		__CardSelection__.setVisible(true);
+	}
+
+	private void ouvrirCardBox(JPanel __CardSelection__) {
+		CardBox_.setVisible(true);
+		__CardSelection__.setVisible(false);
+	}
+
+	private void afficherCardSelection(JPanel __CardSelection__) {
+		CardLogin_.setVisible(false);
+		__CardSelection__.setVisible(true);
+	}
+
+	/**
+	 * verifie si le login et mdp sonts == a ceux de la base de donn�e a l'aide d'un select
+	 * @param __CardSelection__
+	 * @param bienvenue (label qui vas contenir le message de bienvenue) 
+	 * @param logintxt (label ou retourner le resultat de la connecton)
+	 */
+	private void verifInfoDeConnection(JPanel __CardSelection__, JLabel bienvenue, JLabel logintxt) {
+		try { /* \/ <- changer options SQL ici */
+			sql = "call getCon('" + ulogin.getText() + "','" + String.valueOf(umdp.getPassword()) + "');";
+			Class.forName("com.mysql.jdbc.Driver");
+			echo("[SQL] host = " + host + "SQL utilisateur = " + bddUtilisateur + "SQL mdp =" + bddMdp);
+			Connection con = DriverManager.getConnection(host, bddUtilisateur, bddMdp);
+			Statement stmt = con.createStatement();
+			logintxt.setText(" L'identifiant ou le mot de passe est incorrect"); // l'utilisateur ne vois le message que si il n'y a pas de retour sur le select
+			ResultSet rs = stmt.executeQuery(sql);
+			echo("[SQL] authentification de lutilisateur en sql=" + sql);
+
+			if (rs.next()) {
+				uIdPension = rs.getInt(11);
+				echo("id de la pension: " + uIdPension);
+				bienvenue.setText("Bienvenue " + ulogin.getText()); // message de bvn dans cardSelection
+				verif.setText("OK");
+				afficherCardSelection(__CardSelection__);
+			} else {
+
+			}
+		} catch (Exception e1) {
+			redcho("[SQL] procedure = " + sql);
+			redcho("[SQL] exeption dans le getCon dans la procedure verifInfoDeConnection");
+		};
+	}
+	
+	
 }

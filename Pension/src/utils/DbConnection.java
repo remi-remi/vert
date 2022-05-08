@@ -1,17 +1,19 @@
 package utils;
 
 import java.sql.DriverManager;
+import utils.DbConnection;
 import java.sql.SQLException;
 import java.util.List;
 
 import com.mysql.jdbc.*;
+import static utils.Tools.*;
 
 public class DbConnection {
 	
 	private static Connection con = null;
 	
 	static {
-		String url = "jdbc:mysql://172.29.103.11:3306/vert";
+		String url = "jdbc:mysql://192.168.1.49:3306/vert";
 		String user = "prof";
 		String pass = "prof_1234";
 		System.out.println("");

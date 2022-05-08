@@ -1,4 +1,4 @@
-
+import static utils.Tools.*;
 public class Box {
 private int id;
 private String gardiennage;
